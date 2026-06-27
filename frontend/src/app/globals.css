@@ -1,0 +1,108 @@
+/* ------------------------------------------------------------------ */
+/* globals.css — Manasu check-in flow                                  */
+/* ------------------------------------------------------------------ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: #1a1614;
+  color: rgba(255,255,255,0.85);
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ------------------------------------------------------------------ */
+/* Spinner keyframe                                                    */
+/* ------------------------------------------------------------------ */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ------------------------------------------------------------------ */
+/* Loading pulse keyframe for quote skeleton                           */
+/* ------------------------------------------------------------------ */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.9; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Screen entrance animation                                           */
+/* ------------------------------------------------------------------ */
+@keyframes screen-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Staggered pill entrance                                             */
+/* ------------------------------------------------------------------ */
+@keyframes fade-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Logged checkmark fade                                               */
+/* ------------------------------------------------------------------ */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Login / Profile input styles                                        */
+/* ------------------------------------------------------------------ */
+.manasu-input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.manasu-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Stat number typography                                              */
+/* ------------------------------------------------------------------ */
+.manasu-stat-num {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 28px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1;
+}

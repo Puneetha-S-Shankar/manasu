@@ -1,0 +1,15 @@
+ALTER TYPE "public"."core_emotion" RENAME TO "primary_emotion";--> statement-breakpoint
+ALTER TYPE "public"."specific_emotion" RENAME TO "tertiary_emotion";--> statement-breakpoint
+ALTER TABLE "emotion_logs" RENAME COLUMN "core_emotion" TO "primary_emotion";--> statement-breakpoint
+ALTER TABLE "emotion_logs" RENAME COLUMN "specific_emotion" TO "tertiary_emotion";--> statement-breakpoint
+ALTER TABLE "quotes" RENAME COLUMN "target_core_emotions" TO "target_primary_emotions";--> statement-breakpoint
+ALTER TABLE "emotion_logs" ALTER COLUMN "secondary_emotion" SET DATA TYPE text;--> statement-breakpoint
+DROP TYPE "public"."secondary_emotion";--> statement-breakpoint
+CREATE TYPE "public"."secondary_emotion" AS ENUM('Boredom', 'Busy', 'Stress', 'Tired', 'Scared', 'Anxious', 'Insecure', 'Weak', 'Shaky', 'Nervous', 'Mistrust', 'Shame', 'Jealous', 'Mad', 'Irritation', 'Frustration', 'Distant', 'Critical', 'Disapproval', 'Disdain', 'Sick', 'Repulsion', 'Hurt', 'Depression', 'Guilty', 'Despair', 'Vulnerable', 'Lonely', 'Hope', 'Trust', 'Care', 'Powerful', 'Acceptance', 'Proud', 'Curiosity', 'Content', 'Playful', 'Excitement', 'Amazement', 'Confusion', 'Shock');--> statement-breakpoint
+ALTER TABLE "emotion_logs" ALTER COLUMN "secondary_emotion" SET DATA TYPE "public"."secondary_emotion" USING "secondary_emotion"::"public"."secondary_emotion";--> statement-breakpoint
+ALTER TABLE "emotion_logs" ALTER COLUMN "tertiary_emotion" SET DATA TYPE text;--> statement-breakpoint
+DROP TYPE "public"."tertiary_emotion";--> statement-breakpoint
+CREATE TYPE "public"."tertiary_emotion" AS ENUM('Absent', 'Apathy', 'Buzzy', 'Pressure', 'Overwhelmed', 'Out of control', 'Sleepy', 'Blurry', 'Helpless', 'Fearful', 'Overwhelm', 'Worry', 'Small', 'Inferior', 'Hollow', 'Empty', 'Trembling', 'Unstable', 'Tight', 'Vulnerable', 'Exhaustion', 'Resentment', 'Humiliation', 'Embarrassment', 'Indignant', 'Bitter', 'Furious', 'Rage', 'Aggressive', 'Hostile', 'Tense', 'Annoyance', 'Withdrawn', 'Numb', 'Skeptical', 'Dismissive', 'Judgment', 'Shock', 'Revulsion', 'Yucky', 'Nausea', 'Awful', 'Horror', 'Hesitance', 'Pain', 'Disappointment', 'Heavy', 'Weight', 'Remorseful', 'Shame', 'Powerless', 'Grief', 'Fragile', 'Shaky', 'Longing', 'Achy', 'Inspiration', 'Openness', 'Safety', 'Tenderness', 'Gratitude', 'Peaceful', 'Creative', 'Courageous', 'Importance', 'Respect', 'Confident', 'Strong', 'Willingness', 'Interest', 'Joy', 'Free', 'Mischievous', 'Arousal', 'Energetic', 'Eager', 'Awe', 'Astonishment', 'Dizzy', 'Unclear', 'Dismay', 'Uncomfortable');--> statement-breakpoint
+ALTER TABLE "emotion_logs" ALTER COLUMN "tertiary_emotion" SET DATA TYPE "public"."tertiary_emotion" USING "tertiary_emotion"::"public"."tertiary_emotion";--> statement-breakpoint
+DROP INDEX "emotion_logs_core_emotion_idx";--> statement-breakpoint
+CREATE INDEX "emotion_logs_primary_emotion_idx" ON "emotion_logs" USING btree ("primary_emotion");

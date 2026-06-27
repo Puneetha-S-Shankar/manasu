@@ -1,0 +1,376 @@
+{
+  "name": "root",
+  "tiers": ["primary", "secondary", "tertiary"],
+  "children": [
+    {
+      "name": "Bad",
+      "tier": "primary",
+      "children": [
+        {
+          "name": "Boredom",
+          "tier": "secondary",
+          "children": [
+            { "name": "Absent", "tier": "tertiary" },
+            { "name": "Apathy", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Busy",
+          "tier": "secondary",
+          "children": [
+            { "name": "Buzzy", "tier": "tertiary" },
+            { "name": "Pressure", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Stress",
+          "tier": "secondary",
+          "children": [
+            { "name": "Overwhelmed", "tier": "tertiary" },
+            { "name": "Out of control", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Tired",
+          "tier": "secondary",
+          "children": [
+            { "name": "Sleepy", "tier": "tertiary" },
+            { "name": "Blurry", "tier": "tertiary" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Afraid",
+      "tier": "primary",
+      "children": [
+        {
+          "name": "Scared",
+          "tier": "secondary",
+          "children": [
+            { "name": "Helpless", "tier": "tertiary" },
+            { "name": "Fearful", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Anxious",
+          "tier": "secondary",
+          "children": [
+            { "name": "Overwhelm", "tier": "tertiary" },
+            { "name": "Worry", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Insecure",
+          "tier": "secondary",
+          "children": [
+            { "name": "Small", "tier": "tertiary" },
+            { "name": "Inferior", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Weak",
+          "tier": "secondary",
+          "children": [
+            { "name": "Hollow", "tier": "tertiary" },
+            { "name": "Empty", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Shaky",
+          "tier": "secondary",
+          "children": [
+            { "name": "Trembling", "tier": "tertiary" },
+            { "name": "Unstable", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Nervous",
+          "tier": "secondary",
+          "children": [
+            { "name": "Tight", "tier": "tertiary" },
+            { "name": "Vulnerable", "tier": "tertiary" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Angry",
+      "tier": "primary",
+      "children": [
+        {
+          "name": "Mistrust",
+          "tier": "secondary",
+          "children": [
+            { "name": "Exhaustion", "tier": "tertiary" },
+            { "name": "Resentment", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Shame",
+          "tier": "secondary",
+          "children": [
+            { "name": "Humiliation", "tier": "tertiary" },
+            { "name": "Embarrassment", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Jealous",
+          "tier": "secondary",
+          "children": [
+            { "name": "Indignant", "tier": "tertiary" },
+            { "name": "Bitter", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Mad",
+          "tier": "secondary",
+          "children": [
+            { "name": "Furious", "tier": "tertiary" },
+            { "name": "Rage", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Irritation",
+          "tier": "secondary",
+          "children": [
+            { "name": "Aggressive", "tier": "tertiary" },
+            { "name": "Hostile", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Frustration",
+          "tier": "secondary",
+          "children": [
+            { "name": "Tense", "tier": "tertiary" },
+            { "name": "Annoyance", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Distant",
+          "tier": "secondary",
+          "children": [
+            { "name": "Withdrawn", "tier": "tertiary" },
+            { "name": "Numb", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Critical",
+          "tier": "secondary",
+          "children": [
+            { "name": "Skeptical", "tier": "tertiary" },
+            { "name": "Dismissive", "tier": "tertiary" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Disgust",
+      "tier": "primary",
+      "children": [
+        {
+          "name": "Disapproval",
+          "tier": "secondary",
+          "children": [
+            { "name": "Judgment", "tier": "tertiary" },
+            { "name": "Shock", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Disdain",
+          "tier": "secondary",
+          "children": [
+            { "name": "Revulsion", "tier": "tertiary" },
+            { "name": "Yucky", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Sick",
+          "tier": "secondary",
+          "children": [
+            { "name": "Nausea", "tier": "tertiary" },
+            { "name": "Awful", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Repulsion",
+          "tier": "secondary",
+          "children": [
+            { "name": "Horror", "tier": "tertiary" },
+            { "name": "Hesitance", "tier": "tertiary" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Sad",
+      "tier": "primary",
+      "children": [
+        {
+          "name": "Hurt",
+          "tier": "secondary",
+          "children": [
+            { "name": "Pain", "tier": "tertiary" },
+            { "name": "Disappointment", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Depression",
+          "tier": "secondary",
+          "children": [
+            { "name": "Heavy", "tier": "tertiary" },
+            { "name": "Weight", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Guilty",
+          "tier": "secondary",
+          "children": [
+            { "name": "Remorseful", "tier": "tertiary" },
+            { "name": "Shame", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Despair",
+          "tier": "secondary",
+          "children": [
+            { "name": "Powerless", "tier": "tertiary" },
+            { "name": "Grief", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Vulnerable",
+          "tier": "secondary",
+          "children": [
+            { "name": "Fragile", "tier": "tertiary" },
+            { "name": "Shaky", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Lonely",
+          "tier": "secondary",
+          "children": [
+            { "name": "Longing", "tier": "tertiary" },
+            { "name": "Achy", "tier": "tertiary" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Happy",
+      "tier": "primary",
+      "children": [
+        {
+          "name": "Hope",
+          "tier": "secondary",
+          "children": [
+            { "name": "Inspiration", "tier": "tertiary" },
+            { "name": "Openness", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Trust",
+          "tier": "secondary",
+          "children": [
+            { "name": "Safety", "tier": "tertiary" },
+            { "name": "Tenderness", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Care",
+          "tier": "secondary",
+          "children": [
+            { "name": "Gratitude", "tier": "tertiary" },
+            { "name": "Peaceful", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Powerful",
+          "tier": "secondary",
+          "children": [
+            { "name": "Creative", "tier": "tertiary" },
+            { "name": "Courageous", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Acceptance",
+          "tier": "secondary",
+          "children": [
+            { "name": "Importance", "tier": "tertiary" },
+            { "name": "Respect", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Proud",
+          "tier": "secondary",
+          "children": [
+            { "name": "Confident", "tier": "tertiary" },
+            { "name": "Strong", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Curiosity",
+          "tier": "secondary",
+          "children": [
+            { "name": "Willingness", "tier": "tertiary" },
+            { "name": "Interest", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Content",
+          "tier": "secondary",
+          "children": [
+            { "name": "Joy", "tier": "tertiary" },
+            { "name": "Free", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Playful",
+          "tier": "secondary",
+          "children": [
+            { "name": "Mischievous", "tier": "tertiary" },
+            { "name": "Arousal", "tier": "tertiary" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Surprise",
+      "tier": "primary",
+      "children": [
+        {
+          "name": "Excitement",
+          "tier": "secondary",
+          "children": [
+            { "name": "Energetic", "tier": "tertiary" },
+            { "name": "Eager", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Amazement",
+          "tier": "secondary",
+          "children": [
+            { "name": "Awe", "tier": "tertiary" },
+            { "name": "Astonishment", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Confusion",
+          "tier": "secondary",
+          "children": [
+            { "name": "Dizzy", "tier": "tertiary" },
+            { "name": "Unclear", "tier": "tertiary" }
+          ]
+        },
+        {
+          "name": "Shock",
+          "tier": "secondary",
+          "children": [
+            { "name": "Dismay", "tier": "tertiary" },
+            { "name": "Uncomfortable", "tier": "tertiary" }
+          ]
+        }
+      ]
+    }
+  ]
+}
