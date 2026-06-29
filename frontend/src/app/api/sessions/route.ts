@@ -21,9 +21,12 @@ export async function POST(req: NextRequest) {
 
     const response = await fetch(`${BACKEND}/sessions`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-User-ID": session.userId,
+        "X-User-Role": session.role,
+      },
       body: JSON.stringify({
-        user_id: session.userId,
         emotions: [
           {
             primary_emotion: primary,

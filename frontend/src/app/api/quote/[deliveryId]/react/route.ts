@@ -24,7 +24,11 @@ export async function PATCH(
 
     const response = await fetch(`${BACKEND}/quotes/${deliveryId}/react`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-User-ID": session.userId,
+        "X-User-Role": session.role,
+      },
       body: JSON.stringify({ reaction }),
     });
 

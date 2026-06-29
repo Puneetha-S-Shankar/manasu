@@ -5,7 +5,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
-from routers import quotes, sessions, users
+from routers import quotes, sessions
+from routers.therapist import router as therapist_router
+from tasks.scheduler import start_scheduler
 
 logging.basicConfig(
     level=logging.INFO,
@@ -43,9 +45,14 @@ async def log_requests(request: Request, call_next):
     )
     return response
 
-app.include_router(users.router)
 app.include_router(sessions.router)
 app.include_router(quotes.router)
+app.include_router(therapist_router)
+
+
+@app.on_event("startup")
+async def on_startup():
+    start_scheduler()
 
 
 @app.get("/health")

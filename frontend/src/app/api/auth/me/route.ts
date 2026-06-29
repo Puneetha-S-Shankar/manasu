@@ -19,6 +19,8 @@ export async function GET(req: NextRequest) {
         id: users.id,
         email: users.email,
         name: users.name,
+        role: users.role,
+        avatarUrl: users.avatarUrl,
       })
       .from(users)
       .where(eq(users.id, session.userId))

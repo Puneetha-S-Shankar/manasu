@@ -3,10 +3,14 @@ POST /sessions
 Creates a session and logs all emotions submitted from the wheel in one transaction.
 """
 
+import logging
+import time
 import uuid
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
+
+logger = logging.getLogger("manasu")
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
@@ -14,6 +18,7 @@ from sqlalchemy.orm import selectinload
 from database import get_db
 from models import EmotionLog, Session, TimeOfDay, User
 from schemas import SessionCreate, SessionOut
+from auth.internal import require_client
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -31,14 +36,18 @@ def _derive_time_of_day() -> TimeOfDay:
 
 
 @router.post("", response_model=SessionOut, status_code=201)
-async def create_session(payload: SessionCreate, db: AsyncSession = Depends(get_db)):
-    # Verify the user exists
-    user = await db.get(User, payload.user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+async def create_session(
+    payload: SessionCreate, 
+    current_user: User = Depends(require_client),
+    db: AsyncSession = Depends(get_db)
+):
+    t0 = time.perf_counter()
 
     if not payload.emotions:
         raise HTTPException(status_code=422, detail="At least one emotion is required")
+
+    t_user = time.perf_counter()
+    logger.info("session | user lookup: %.0fms", (t_user - t0) * 1000)
 
     # Derive time of day if not provided
     time_of_day = payload.time_of_day or _derive_time_of_day()
@@ -46,7 +55,7 @@ async def create_session(payload: SessionCreate, db: AsyncSession = Depends(get_
     # Create session
     session = Session(
         id=uuid.uuid4(),
-        user_id=payload.user_id,
+        user_id=current_user.id,
         time_of_day=time_of_day,
         notes=payload.notes,
     )
@@ -68,7 +77,7 @@ async def create_session(payload: SessionCreate, db: AsyncSession = Depends(get_
     db.add_all(emotion_logs)
     await db.flush()
 
-    # Reload with relationships for the response
+    # Reload with relationships before committing so we can return the full object
     result = await db.execute(
         select(Session)
         .where(Session.id == session.id)
@@ -76,4 +85,9 @@ async def create_session(payload: SessionCreate, db: AsyncSession = Depends(get_
     )
     session_with_logs = result.scalar_one()
 
+    await db.commit()
+
+    t_write = time.perf_counter()
+    logger.info("session | DB write + commit (session + logs): %.0fms", (t_write - t_user) * 1000)
+    logger.info("session | total: %.0fms", (t_write - t0) * 1000)
     return session_with_logs

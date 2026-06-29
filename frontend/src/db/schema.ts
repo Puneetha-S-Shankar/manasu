@@ -9,6 +9,7 @@ import {
     timestamp,
     jsonb,
     index,
+    unique,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -151,6 +152,27 @@ export const reactionEnum = pgEnum("reaction", [
     "saved",
 ]);
 
+export const therapistRoleEnum = pgEnum("therapist_role", [
+    "therapist",
+    "admin",
+]);
+
+export const userRoleEnum = pgEnum("user_role", [
+    "client",
+    "therapist",
+]);
+
+export const alertTypeEnum = pgEnum("alert_type", [
+    "low_mood_streak",
+    "high_intensity",
+    "no_checkin",
+]);
+
+export const pushTypeEnum = pgEnum("push_type", [
+    "quote",
+    "exercise",
+]);
+
 // ---------------------------------------------------------------------------
 // USERS
 // ---------------------------------------------------------------------------
@@ -159,6 +181,9 @@ export const users = pgTable("users", {
     id: uuid("id").defaultRandom().primaryKey(),
     email: varchar("email", { length: 255 }).notNull().unique(),
     name: varchar("name", { length: 100 }),
+    role: userRoleEnum("role").default("client").notNull(),
+    googleId: varchar("google_id", { length: 255 }).unique(),
+    avatarUrl: varchar("avatar_url", { length: 500 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -266,11 +291,93 @@ export const quoteDeliveries = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// THERAPISTS — separate table, not a role flag on users
+// ---------------------------------------------------------------------------
+
+export const therapists = pgTable("therapists", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }).notNull().unique(),
+    licenseNumber: varchar("license_number", { length: 100 }),
+    bio: text("bio"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// ---------------------------------------------------------------------------
+// THERAPIST CLIENTS — join table with metadata
+// ---------------------------------------------------------------------------
+
+export const therapistClients = pgTable(
+    "therapist_clients",
+    {
+        id: uuid("id").defaultRandom().primaryKey(),
+        therapistId: uuid("therapist_id").references(() => therapists.id, { onDelete: "cascade" }).notNull(),
+        clientId: uuid("client_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+        isActive: boolean("is_active").default(true).notNull(),
+        linkedAt: timestamp("linked_at").defaultNow().notNull(),
+    },
+    (t) => ({
+        therapistClientUnique: unique("uq_therapist_client").on(t.therapistId, t.clientId),
+    })
+);
+
+// ---------------------------------------------------------------------------
+// QUOTE PACKS — therapist-curated sets
+// ---------------------------------------------------------------------------
+
+export const quotePacks = pgTable("quote_packs", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    therapistId: uuid("therapist_id").references(() => therapists.id, { onDelete: "cascade" }).notNull(),
+    name: varchar("name", { length: 100 }).notNull(),
+    description: text("description"),
+    tags: jsonb("tags").$type<string[]>().default([]),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const quotePackItems = pgTable("quote_pack_items", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    packId: uuid("pack_id").references(() => quotePacks.id, { onDelete: "cascade" }).notNull(),
+    quoteId: uuid("quote_id").references(() => quotes.id, { onDelete: "cascade" }).notNull(),
+    order: integer("order"),
+});
+
+// ---------------------------------------------------------------------------
+// THERAPIST PUSHES — therapist pushes quote/exercise to a client
+// ---------------------------------------------------------------------------
+
+export const therapistPushes = pgTable("therapist_pushes", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    therapistId: uuid("therapist_id").references(() => therapists.id, { onDelete: "cascade" }).notNull(),
+    clientId: uuid("client_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+    quoteId: uuid("quote_id").references(() => quotes.id, { onDelete: "set null" }),
+    packId: uuid("pack_id").references(() => quotePacks.id, { onDelete: "set null" }),
+    content: text("content"),
+    pushType: pushTypeEnum("push_type").notNull(),
+    sentAt: timestamp("sent_at").defaultNow().notNull(),
+    seenAt: timestamp("seen_at"),
+    reaction: reactionEnum("reaction"),
+});
+
+// ---------------------------------------------------------------------------
+// MOOD ALERTS — auto-generated when low mood threshold is crossed
+// ---------------------------------------------------------------------------
+
+export const moodAlerts = pgTable("mood_alerts", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    therapistId: uuid("therapist_id").references(() => therapists.id, { onDelete: "cascade" }).notNull(),
+    clientId: uuid("client_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+    alertType: alertTypeEnum("alert_type").notNull(),
+    reason: text("reason").notNull(),
+    isRead: boolean("is_read").default(false).notNull(),
+    triggeredAt: timestamp("triggered_at").defaultNow().notNull(),
+});
+
+// ---------------------------------------------------------------------------
 // RELATIONS (for Drizzle query API / joins)
 // ---------------------------------------------------------------------------
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
     sessions: many(sessions),
+    therapist: one(therapists, { fields: [users.id], references: [therapists.userId] }),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one, many }) => ({
@@ -292,6 +399,41 @@ export const quoteDeliveriesRelations = relations(quoteDeliveries, ({ one }) => 
     quote: one(quotes, { fields: [quoteDeliveries.quoteId], references: [quotes.id] }),
 }));
 
+export const therapistsRelations = relations(therapists, ({ one, many }) => ({
+    user: one(users, { fields: [therapists.userId], references: [users.id] }),
+    clients: many(therapistClients),
+    quotePacks: many(quotePacks),
+    pushes: many(therapistPushes),
+    alerts: many(moodAlerts),
+}));
+
+export const therapistClientsRelations = relations(therapistClients, ({ one }) => ({
+    therapist: one(therapists, { fields: [therapistClients.therapistId], references: [therapists.id] }),
+    client: one(users, { fields: [therapistClients.clientId], references: [users.id] }),
+}));
+
+export const quotePacksRelations = relations(quotePacks, ({ one, many }) => ({
+    therapist: one(therapists, { fields: [quotePacks.therapistId], references: [therapists.id] }),
+    items: many(quotePackItems),
+}));
+
+export const quotePackItemsRelations = relations(quotePackItems, ({ one }) => ({
+    pack: one(quotePacks, { fields: [quotePackItems.packId], references: [quotePacks.id] }),
+    quote: one(quotes, { fields: [quotePackItems.quoteId], references: [quotes.id] }),
+}));
+
+export const therapistPushesRelations = relations(therapistPushes, ({ one }) => ({
+    therapist: one(therapists, { fields: [therapistPushes.therapistId], references: [therapists.id] }),
+    client: one(users, { fields: [therapistPushes.clientId], references: [users.id] }),
+    quote: one(quotes, { fields: [therapistPushes.quoteId], references: [quotes.id] }),
+    pack: one(quotePacks, { fields: [therapistPushes.packId], references: [quotePacks.id] }),
+}));
+
+export const moodAlertsRelations = relations(moodAlerts, ({ one }) => ({
+    therapist: one(therapists, { fields: [moodAlerts.therapistId], references: [therapists.id] }),
+    client: one(users, { fields: [moodAlerts.clientId], references: [users.id] }),
+}));
+
 // ---------------------------------------------------------------------------
 // TYPE EXPORTS
 // Inferred types for use in your API / service layer
@@ -307,3 +449,15 @@ export type Quote = typeof quotes.$inferSelect;
 export type NewQuote = typeof quotes.$inferInsert;
 export type QuoteDelivery = typeof quoteDeliveries.$inferSelect;
 export type NewQuoteDelivery = typeof quoteDeliveries.$inferInsert;
+export type Therapist = typeof therapists.$inferSelect;
+export type NewTherapist = typeof therapists.$inferInsert;
+export type TherapistClient = typeof therapistClients.$inferSelect;
+export type NewTherapistClient = typeof therapistClients.$inferInsert;
+export type QuotePack = typeof quotePacks.$inferSelect;
+export type NewQuotePack = typeof quotePacks.$inferInsert;
+export type QuotePackItem = typeof quotePackItems.$inferSelect;
+export type NewQuotePackItem = typeof quotePackItems.$inferInsert;
+export type TherapistPush = typeof therapistPushes.$inferSelect;
+export type NewTherapistPush = typeof therapistPushes.$inferInsert;
+export type MoodAlert = typeof moodAlerts.$inferSelect;
+export type NewMoodAlert = typeof moodAlerts.$inferInsert;

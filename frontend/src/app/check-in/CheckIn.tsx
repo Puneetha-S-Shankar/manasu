@@ -68,7 +68,10 @@ function makeBubbleGradient(hex: string, opacity = 1): string {
 /* Sub-components                                                      */
 /* ------------------------------------------------------------------ */
 
-function NavBar({ onProfileClick }: { onProfileClick?: () => void }) {
+import { useRouter } from "next/navigation";
+
+function NavBar() {
+  const router = useRouter();
   return (
     <nav
       style={{
@@ -92,7 +95,7 @@ function NavBar({ onProfileClick }: { onProfileClick?: () => void }) {
       />
 
       <button
-        onClick={onProfileClick}
+        onClick={() => router.push("/profile")}
         aria-label="Profile"
         style={{
           width: 34,
@@ -100,7 +103,7 @@ function NavBar({ onProfileClick }: { onProfileClick?: () => void }) {
           borderRadius: "50%",
           background: "linear-gradient(135deg, #C084FC, #F9A8C9)",
           border: "none",
-          cursor: onProfileClick ? "pointer" : "default",
+          cursor: "pointer",
           fontSize: 13,
           fontWeight: 600,
           color: "white",
@@ -108,7 +111,7 @@ function NavBar({ onProfileClick }: { onProfileClick?: () => void }) {
           alignItems: "center",
           justifyContent: "center",
           fontFamily: "inherit",
-          opacity: onProfileClick ? 1 : 0.5,
+          opacity: 1,
           transition: "opacity 150ms ease-out, transform 150ms ease-out",
         }}
       >
@@ -218,7 +221,7 @@ function QuoteSkeleton() {
 /* ------------------------------------------------------------------ */
 /* Main component                                                      */
 /* ------------------------------------------------------------------ */
-export default function CheckIn({ onProfileClick }: { onProfileClick?: () => void }) {
+export default function CheckIn() {
   const [screen, setScreen] = useState(1);
   const [selectedPrimary, setSelectedPrimary] = useState<EmotionNode | null>(null);
   const [selectedSecondary, setSelectedSecondary] = useState<EmotionNode | null>(null);
@@ -529,7 +532,7 @@ export default function CheckIn({ onProfileClick }: { onProfileClick?: () => voi
   /* ================================================================ */
   return (
     <div style={wrapperStyle}>
-      <NavBar onProfileClick={onProfileClick} />
+      <NavBar />
 
       <div style={contentAreaStyle}>
       {/* ============================================================ */}

@@ -5,7 +5,7 @@ from config import settings
 
 engine = create_async_engine(
     settings.database_url,
-    echo=False,        # set True to log all SQL during dev
+    echo=True,         # logs all SQL — set False in production
     pool_size=10,
     max_overflow=20,
     pool_pre_ping=True,   # reconnect if Neon pooler closed an idle connection

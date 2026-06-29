@@ -4,20 +4,25 @@ PATCH /quotes/:id/react — record user reaction to a delivered quote
 """
 
 import json
+import logging
+import time
 import uuid
 
 from openai import AsyncOpenAI
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+
+logger = logging.getLogger("manasu")
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
 from config import settings
 from database import AsyncSessionLocal, get_db
-from models import Quote, QuoteDelivery, QuoteSource, Session
+from models import Quote, QuoteDelivery, QuoteSource, Session, User
 from prompt_builder import build_quote_prompt
 from schemas import QuoteOut, QuoteRequest, ReactionUpdate
+from auth.internal import require_client
 
 router = APIRouter(prefix="/quotes", tags=["quotes"])
 
@@ -95,11 +100,19 @@ async def _fetch_past_sessions(user_id: uuid.UUID, exclude_id: uuid.UUID, db: As
 
 
 @router.post("", response_model=QuoteOut, status_code=201)
-async def generate_quote(payload: QuoteRequest):
+async def generate_quote(
+    payload: QuoteRequest,
+    current_user: User = Depends(require_client),
+):
+    t0 = time.perf_counter()
+
     # Read phase — release the connection before the slow LLM call so Neon
     # doesn't close an idle connection mid-request.
     async with AsyncSessionLocal() as db:
         current_session = await _fetch_session_with_emotions(payload.session_id, db)
+
+        if current_session.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized to access this session")
 
         if not current_session.emotion_logs:
             raise HTTPException(
@@ -117,6 +130,9 @@ async def generate_quote(payload: QuoteRequest):
             log.primary_emotion.value for log in current_session.emotion_logs
         ]
 
+    t_db_read = time.perf_counter()
+    logger.info("quote | DB read (session + history): %.0fms", (t_db_read - t0) * 1000)
+
     # LLM call — no DB connection held open during this await
     try:
         completion = await _client.chat.completions.create(
@@ -124,7 +140,7 @@ async def generate_quote(payload: QuoteRequest):
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
             top_p=0.7,
-            max_tokens=1024,
+            max_tokens=120,
             stream=False,
         )
         raw = completion.choices[0].message.content.strip()
@@ -137,6 +153,9 @@ async def generate_quote(payload: QuoteRequest):
         raise HTTPException(status_code=502, detail="LLM returned malformed JSON")
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"LLM error: {str(e)}")
+
+    t_llm = time.perf_counter()
+    logger.info("quote | LLM inference (NVIDIA NIM): %.0fms", (t_llm - t_db_read) * 1000)
 
     # Write phase — fresh connection for persisting quote + delivery
     async with AsyncSessionLocal() as db:
@@ -161,6 +180,16 @@ async def generate_quote(payload: QuoteRequest):
         db.add(delivery)
         await db.commit()
 
+        t_write = time.perf_counter()
+        logger.info("quote | DB write (quote + delivery): %.0fms", (t_write - t_llm) * 1000)
+        logger.info(
+            "quote | TOTAL  db_read=%.0fms  llm=%.0fms  db_write=%.0fms  total=%.0fms",
+            (t_db_read - t0) * 1000,
+            (t_llm - t_db_read) * 1000,
+            (t_write - t_llm) * 1000,
+            (t_write - t0) * 1000,
+        )
+
         return QuoteOut(
             id=quote.id,
             content=quote.content,
@@ -174,6 +203,7 @@ async def generate_quote(payload: QuoteRequest):
 async def react_to_quote(
     delivery_id: uuid.UUID,
     payload: ReactionUpdate,
+    current_user: User = Depends(require_client),
     db: AsyncSession = Depends(get_db),
 ):
     delivery = await db.get(QuoteDelivery, delivery_id)
