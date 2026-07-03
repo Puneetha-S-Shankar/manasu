@@ -223,6 +223,7 @@ class TertiaryEmotion(str, enum.Enum):
 class UserRole(str, enum.Enum):
     client    = "client"
     therapist = "therapist"
+    admin     = "admin"
 
 
 class TimeOfDay(str, enum.Enum):
@@ -270,6 +271,7 @@ class User(Base):
     email:      Mapped[str]              = mapped_column(String(255), unique=True, nullable=False)
     name:       Mapped[str | None]       = mapped_column(String(100))
     role:       Mapped[UserRole]         = mapped_column(Enum(UserRole, name="user_role"), default=UserRole.client, nullable=False)
+    is_active:  Mapped[bool]             = mapped_column(Boolean, default=True, nullable=False)
     google_id:  Mapped[str | None]       = mapped_column(String(255), unique=True)
     avatar_url: Mapped[str | None]       = mapped_column(String(500))
     created_at: Mapped[datetime]         = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -313,6 +315,7 @@ class Quote(Base):
     content:                Mapped[str]            = mapped_column(Text, nullable=False)
     author:                 Mapped[str | None]     = mapped_column(String(200))
     source:                 Mapped[QuoteSource]    = mapped_column(Enum(QuoteSource, name="quote_source"), default=QuoteSource.generated, nullable=False)
+    flagged:                Mapped[bool]           = mapped_column(Boolean, default=False, nullable=False)
     tags:                   Mapped[list]           = mapped_column(JSONB, default=list)
     target_primary_emotions: Mapped[list]          = mapped_column(JSONB, default=list)
     created_at:             Mapped[datetime]       = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -450,3 +453,22 @@ class MoodAlert(Base):
 
     therapist: Mapped["Therapist"] = relationship("Therapist", back_populates="alerts")
     client:    Mapped["User"]      = relationship("User")
+
+
+# ---------------------------------------------------------------------------
+# LinkRequest — client requesting to link with a therapist
+# ---------------------------------------------------------------------------
+
+class LinkRequest(Base):
+    __tablename__ = "link_requests"
+
+    id:           Mapped[uuid.UUID]        = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    therapist_id: Mapped[uuid.UUID]        = mapped_column(UUID(as_uuid=True), ForeignKey("therapists.id", ondelete="CASCADE"), nullable=False)
+    client_email: Mapped[str]              = mapped_column(String(255), nullable=False)
+    status:       Mapped[str]              = mapped_column(String(20), default="pending")
+    requested_at: Mapped[datetime]         = mapped_column(DateTime(timezone=True), server_default=func.now())
+    resolved_at:  Mapped[datetime | None]  = mapped_column(DateTime(timezone=True), nullable=True)
+    resolved_by:  Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+
+    therapist: Mapped["Therapist"]      = relationship("Therapist")
+    resolver:  Mapped["User | None"]    = relationship("User", foreign_keys=[resolved_by])

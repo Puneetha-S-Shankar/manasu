@@ -10,7 +10,7 @@ export interface SessionPayload {
   userId: string;
   email: string;
   name?: string | null;
-  role: "client" | "therapist";
+  role: "client" | "therapist" | "admin";
 }
 
 /**

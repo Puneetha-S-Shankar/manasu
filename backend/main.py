@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import settings
 from routers import quotes, sessions
 from routers.therapist import router as therapist_router
+from routers.admin import router as admin_router
 from tasks.scheduler import start_scheduler
 
 logging.basicConfig(
@@ -48,6 +49,7 @@ async def log_requests(request: Request, call_next):
 app.include_router(sessions.router)
 app.include_router(quotes.router)
 app.include_router(therapist_router)
+app.include_router(admin_router)
 
 
 @app.on_event("startup")

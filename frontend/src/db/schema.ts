@@ -160,6 +160,7 @@ export const therapistRoleEnum = pgEnum("therapist_role", [
 export const userRoleEnum = pgEnum("user_role", [
     "client",
     "therapist",
+    "admin"
 ]);
 
 export const alertTypeEnum = pgEnum("alert_type", [
@@ -182,6 +183,7 @@ export const users = pgTable("users", {
     email: varchar("email", { length: 255 }).notNull().unique(),
     name: varchar("name", { length: 100 }),
     role: userRoleEnum("role").default("client").notNull(),
+    is_active: boolean("is_active").default(true).notNull(),
     googleId: varchar("google_id", { length: 255 }).unique(),
     avatarUrl: varchar("avatar_url", { length: 500 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -249,6 +251,7 @@ export const quotes = pgTable("quotes", {
     content: text("content").notNull(),
     author: varchar("author", { length: 200 }),
     source: quoteSourceEnum("source").default("generated").notNull(),
+    flagged: boolean("flagged").default(false).notNull(),
 
     // e.g. ["grounding", "validation", "reframe", "stoic", "grief"]
     // lets you filter by therapeutic intent later
@@ -369,6 +372,20 @@ export const moodAlerts = pgTable("mood_alerts", {
     reason: text("reason").notNull(),
     isRead: boolean("is_read").default(false).notNull(),
     triggeredAt: timestamp("triggered_at").defaultNow().notNull(),
+});
+
+// ---------------------------------------------------------------------------
+// LINK REQUESTS
+// ---------------------------------------------------------------------------
+
+export const linkRequests = pgTable("link_requests", {
+  id:           uuid("id").primaryKey().defaultRandom(),
+  therapist_id: uuid("therapist_id").notNull().references(() => therapists.id, { onDelete: "cascade" }),
+  client_email: varchar("client_email", { length: 255 }).notNull(),
+  status:       varchar("status", { length: 20 }).default("pending").notNull(),
+  requested_at: timestamp("requested_at", { withTimezone: true }).defaultNow().notNull(),
+  resolved_at:  timestamp("resolved_at", { withTimezone: true }),
+  resolved_by:  uuid("resolved_by").references(() => users.id),
 });
 
 // ---------------------------------------------------------------------------

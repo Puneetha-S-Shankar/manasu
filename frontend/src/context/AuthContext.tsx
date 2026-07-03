@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type Role = "client" | "therapist";
+type Role = "client" | "therapist" | "admin";
 
 interface UserData {
   id: string;

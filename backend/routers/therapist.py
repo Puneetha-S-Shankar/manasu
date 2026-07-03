@@ -30,6 +30,8 @@ from models import (
     TherapistClient,
     TherapistPush,
     User,
+    LinkRequest,
+    UserRole,
 )
 from schemas import (
     ClientLinkCreate,
@@ -44,6 +46,8 @@ from schemas import (
     TherapistOut,
     TherapistPushCreate,
     TherapistPushOut,
+    LinkRequestCreate,
+    LinkRequestOut,
 )
 
 router = APIRouter(prefix="/therapist", tags=["therapist"])
@@ -203,6 +207,89 @@ async def link_client(
         is_active=link.is_active,
         linked_at=link.linked_at,
     )
+
+
+# ---------------------------------------------------------------------------
+# Link Requests (Story 1)
+# ---------------------------------------------------------------------------
+
+@router.post("/link-requests", response_model=LinkRequestOut, status_code=201)
+async def create_link_request(
+    payload: LinkRequestCreate,
+    db: AsyncSession = Depends(get_db),
+    caller: Therapist = Depends(get_therapist_profile),
+):
+    client_result = await db.execute(select(User).where(User.email == payload.client_email, User.role == UserRole.client))
+    client = client_result.scalar_one_or_none()
+    if not client:
+        raise HTTPException(status_code=404, detail="No client found with that email")
+    
+    existing_link = await db.execute(
+        select(TherapistClient).where(
+            TherapistClient.therapist_id == caller.id,
+            TherapistClient.client_id == client.id,
+        )
+    )
+    if existing_link.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="Client is already linked to this therapist")
+    
+    pending = await db.execute(
+        select(LinkRequest).where(
+            LinkRequest.therapist_id == caller.id,
+            LinkRequest.client_email == payload.client_email,
+            LinkRequest.status == "pending"
+        )
+    )
+    if pending.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="A pending request already exists for this client")
+
+    new_req = LinkRequest(
+        id=uuid.uuid4(),
+        therapist_id=caller.id,
+        client_email=payload.client_email,
+        status="pending"
+    )
+    db.add(new_req)
+    await db.commit()
+    await db.refresh(new_req)
+    
+    return LinkRequestOut(
+        id=new_req.id,
+        therapist_id=new_req.therapist_id,
+        therapist_name=None,
+        therapist_email=None,
+        client_email=new_req.client_email,
+        status=new_req.status,
+        requested_at=new_req.requested_at,
+        resolved_at=new_req.resolved_at
+    )
+
+
+@router.get("/link-requests", response_model=list[LinkRequestOut])
+async def list_link_requests(
+    db: AsyncSession = Depends(get_db),
+    caller: Therapist = Depends(get_therapist_profile),
+):
+    result = await db.execute(
+        select(LinkRequest)
+        .where(LinkRequest.therapist_id == caller.id)
+        .order_by(LinkRequest.requested_at.desc())
+    )
+    reqs = result.scalars().all()
+    
+    return [
+        LinkRequestOut(
+            id=req.id,
+            therapist_id=req.therapist_id,
+            therapist_name=None,
+            therapist_email=None,
+            client_email=req.client_email,
+            status=req.status,
+            requested_at=req.requested_at,
+            resolved_at=req.resolved_at
+        )
+        for req in reqs
+    ]
 
 
 @router.delete("/clients/{client_id}", status_code=200)

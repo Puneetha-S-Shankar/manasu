@@ -186,7 +186,9 @@ export default function App() {
 
   useEffect(() => {
     if (!isLoading && user) {
-      if (user.role === "therapist") {
+      if (user.role === "admin") {
+        router.replace("/admin/dashboard");
+      } else if (user.role === "therapist") {
         router.replace("/therapist/dashboard");
       } else {
         router.replace("/check-in");

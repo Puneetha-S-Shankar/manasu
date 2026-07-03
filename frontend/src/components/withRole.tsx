@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 
 export function withRole<P extends object>(
   WrappedComponent: React.ComponentType<P>,
-  allowedRole: "client" | "therapist"
+  allowedRole: "client" | "therapist" | "admin"
 ) {
   return function ProtectedRoute(props: P) {
     const { user, isLoading } = useAuth();

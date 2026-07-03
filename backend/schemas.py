@@ -39,6 +39,7 @@ class UserOut(BaseModel):
     email: str
     name: Optional[str]
     role: UserRole
+    is_active: bool
     avatar_url: Optional[str]
     created_at: datetime
 
@@ -168,6 +169,25 @@ class ClientLinkOut(BaseModel):
     is_active: bool
     linked_at: datetime
 
+    model_config = {"from_attributes": True}
+
+
+# ---------------------------------------------------------------------------
+# Link Requests
+# ---------------------------------------------------------------------------
+
+class LinkRequestCreate(BaseModel):
+    client_email: str
+
+class LinkRequestOut(BaseModel):
+    id: uuid.UUID
+    therapist_id: uuid.UUID
+    therapist_name: Optional[str]
+    therapist_email: Optional[str]
+    client_email: str
+    status: str
+    requested_at: datetime
+    resolved_at: Optional[datetime]
     model_config = {"from_attributes": True}
 
 

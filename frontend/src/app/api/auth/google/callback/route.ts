@@ -124,7 +124,7 @@ export async function GET(req: NextRequest) {
     });
 
     // 6. Redirect to app root — App.tsx detects the session and advances to check-in
-    const targetRoute = user.role === "therapist" ? "/therapist/dashboard" : "/check-in";
+    const targetRoute = user.role === "admin" ? "/admin/dashboard" : user.role === "therapist" ? "/therapist/dashboard" : "/check-in";
     return NextResponse.redirect(`${appUrl}${targetRoute}`);
   } catch (err) {
     console.error("Error during Google OAuth callback processing:", err);
