@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { Navbar, Footer } from "../App";
@@ -23,8 +23,8 @@ export default function DashboardPage() {
     if (!user) return;
     
     Promise.all([
-      fetch("/api/client/history").then(res => res.json()),
-      fetch("/api/client/saved-quotes").then(res => res.json())
+      fetch("/api/client/history", { cache: "no-store", headers: { "Cache-Control": "no-cache" } }).then(res => res.json()),
+      fetch("/api/client/saved-quotes", { cache: "no-store", headers: { "Cache-Control": "no-cache" } }).then(res => res.json())
     ]).then(([historyData, quotesData]) => {
       setHistory(Array.isArray(historyData) ? historyData.slice(0, 7).reverse() : []);
       setSavedQuotes(Array.isArray(quotesData) ? quotesData : []);
@@ -90,7 +90,7 @@ export default function DashboardPage() {
                       const height = `${(intensity / 5) * 100}%`;
                       
                       return (
-                        <div key={session.id} className="flex flex-col items-center gap-2 flex-1 group">
+                        <div key={session.id} className="flex flex-col items-center justify-end gap-2 flex-1 h-full group">
                           <div 
                             className="w-full rounded-full transition-all duration-300 group-hover:opacity-80"
                             style={{ 

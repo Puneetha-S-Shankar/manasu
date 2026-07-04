@@ -35,8 +35,9 @@ export function Navbar({ showLinks = false }: { showLinks?: boolean }) {
           <Link href="/dashboard"><Logo height={24} /></Link>
           {showLinks && (
             <div className="hidden md:flex gap-6 text-[14px] text-[var(--muted)]">
+              <Link href="/dashboard" className="hover:text-[var(--foreground)] transition-colors">Dashboard</Link>
               <Link href="/check-in" className="hover:text-[var(--foreground)] transition-colors">Check-in</Link>
-              <Link href="/dashboard" className="hover:text-[var(--foreground)] transition-colors">Insights</Link>
+              <Link href="/insights" className="hover:text-[var(--foreground)] transition-colors">Insights</Link>
               <Link href="/library" className="hover:text-[var(--foreground)] transition-colors">Library</Link>
             </div>
           )}

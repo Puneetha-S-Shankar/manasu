@@ -292,3 +292,13 @@ class ClientMoodSummary(BaseModel):
     recent_sessions: list["SessionOut"]
 
     model_config = {"from_attributes": True}
+
+
+# ---------------------------------------------------------------------------
+# Client Insights
+# ---------------------------------------------------------------------------
+
+class AISummaryOut(BaseModel):
+    summary: str
+    triggers: list[str]
+    generated_at: datetime

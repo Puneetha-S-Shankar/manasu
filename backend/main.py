@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
-from routers import quotes, sessions
+from routers import quotes, sessions, insights
 from routers.therapist import router as therapist_router
 from routers.admin import router as admin_router
 from routers.client import router as client_router
@@ -52,6 +52,7 @@ app.include_router(quotes.router)
 app.include_router(therapist_router)
 app.include_router(admin_router)
 app.include_router(client_router)
+app.include_router(insights.router)
 
 
 @app.on_event("startup")

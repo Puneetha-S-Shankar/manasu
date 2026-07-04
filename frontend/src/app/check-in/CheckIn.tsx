@@ -101,6 +101,7 @@ export default function CheckIn() {
   const [quote, setQuote] = useState<string | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [logged, setLogged] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
   const [animKey, setAnimKey] = useState(0);
 
@@ -115,6 +116,7 @@ export default function CheckIn() {
     setQuoteLoading(true);
     setQuote(null);
     setDeliveryId(null);
+    setIsSaved(false);
 
     try {
       const sessionRes = await fetch("/api/sessions", {
@@ -145,6 +147,7 @@ export default function CheckIn() {
     if (!sessionId) return;
     setQuoteLoading(true);
     setQuote(null);
+    setIsSaved(false);
 
     if (deliveryId) {
       fetch(`/api/quote/${deliveryId}/react`, {
@@ -212,7 +215,7 @@ export default function CheckIn() {
   }
 
   function handleHelped() {
-    if (deliveryId) {
+    if (deliveryId && !isSaved) {
       fetch(`/api/quote/${deliveryId}/react`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -230,6 +233,7 @@ export default function CheckIn() {
       setQuote(null);
       setSessionId(null);
       setDeliveryId(null);
+      setIsSaved(false);
       setSelectedPrimary(null);
       setSelectedSecondary(null);
       setSelectedTertiary(null);
@@ -245,6 +249,7 @@ export default function CheckIn() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reaction: "saved" }),
       }).then(() => {
+        setIsSaved(true);
         // Just visually acknowledge
         alert("Quote saved!");
       }).catch(() => {});

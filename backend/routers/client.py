@@ -1,7 +1,7 @@
-﻿from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import selectinload, joinedload
+from sqlalchemy.orm import selectinload, contains_eager
 
 from auth.internal import require_client
 from database import get_db
@@ -35,7 +35,7 @@ async def get_history(
         .order_by(Session.created_at.desc())
         .limit(30)
     )
-    return result.scalars().all()
+    return list(result.scalars().all())
 
 @router.get("/saved-quotes", response_model=list[SavedQuoteOut])
 async def get_saved_quotes(
@@ -44,13 +44,13 @@ async def get_saved_quotes(
 ):
     result = await db.execute(
         select(QuoteDelivery)
-        .join(Session, Session.id == QuoteDelivery.session_id)
-        .join(Quote, Quote.id == QuoteDelivery.quote_id)
+        .join(QuoteDelivery.session)
+        .join(QuoteDelivery.quote)
         .where(
             Session.user_id == current_user.id,
             QuoteDelivery.reaction == Reaction.saved
         )
-        .options(joinedload(QuoteDelivery.quote))
+        .options(contains_eager(QuoteDelivery.quote))
         .order_by(QuoteDelivery.created_at.desc())
     )
     deliveries = result.scalars().all()
