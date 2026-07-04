@@ -27,8 +27,9 @@ from auth.internal import require_client
 router = APIRouter(prefix="/quotes", tags=["quotes"])
 
 _client = AsyncOpenAI(
-    base_url="https://integrate.api.nvidia.com/v1",
+    base_url=settings.nvidia_nim_base_url,
     api_key=settings.nvidia_nim_api_key,
+    timeout=10.0,
 )
 
 
@@ -59,15 +60,19 @@ async def generate_simple_quote(payload: SimpleQuoteRequest):
     )
     try:
         completion = await _client.chat.completions.create(
-            model="meta/llama-3.3-70b-instruct",
+            model="mistralai/mixtral-8x7b-instruct-v0.1",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
             top_p=0.9,
             max_tokens=80,
             stream=False,
         )
-        quote = completion.choices[0].message.content.strip()
+        content = completion.choices[0].message.content
+        if not content:
+            raise ValueError("LLM returned empty or null content")
+        quote = content.strip()
     except Exception as e:
+        logger.error(f"quote | simple generate timeout/error: {str(e)}")
         raise HTTPException(status_code=502, detail=f"LLM error: {str(e)}")
 
     return SimpleQuoteResponse(quote=quote)
@@ -96,7 +101,7 @@ async def _fetch_past_sessions(user_id: uuid.UUID, exclude_id: uuid.UUID, db: As
         .order_by(Session.created_at.desc())
         .limit(HISTORY_WINDOW)
     )
-    return result.scalars().all()
+    return list(result.scalars().all())
 
 
 @router.post("", response_model=QuoteOut, status_code=201)
@@ -136,14 +141,17 @@ async def generate_quote(
     # LLM call — no DB connection held open during this await
     try:
         completion = await _client.chat.completions.create(
-            model="meta/llama-3.3-70b-instruct",
+            model="mistralai/mixtral-8x7b-instruct-v0.1",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
             top_p=0.7,
             max_tokens=120,
             stream=False,
         )
-        raw = completion.choices[0].message.content.strip()
+        content = completion.choices[0].message.content
+        if not content:
+            raise ValueError("LLM returned empty or null content")
+        raw = content.strip()
         if raw.startswith("```"):
             raw = raw.split("```")[1]
             if raw.startswith("json"):
@@ -152,6 +160,7 @@ async def generate_quote(
     except json.JSONDecodeError:
         raise HTTPException(status_code=502, detail="LLM returned malformed JSON")
     except Exception as e:
+        logger.error(f"quote | LLM error or timeout: {str(e)}")
         raise HTTPException(status_code=502, detail=f"LLM error: {str(e)}")
 
     t_llm = time.perf_counter()

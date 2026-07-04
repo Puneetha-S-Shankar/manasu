@@ -55,3 +55,9 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# ============================================================
+# Local docs / artifacts
+# ============================================================
+Manasu_PRD (1).pdf
+manasu-ui-ux.md

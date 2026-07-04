@@ -1,324 +1,154 @@
-# ಮನಸು (Manasu) UI Design System — Target Spec & How to Build It
+# ಮನಸು (Manasu) — "Structured Calm" Vibe Spec
 
-> **Note on status:** unlike a typical design-system README, this doesn't document code that already exists. The current emotion check-in screen is a wireframe (flat saturated circles on pure black) — this document specs out the *target* system we're building toward, so it can be handed to an agent or built section-by-section with a consistent source of truth from day one.
-
----
-
-## 1. The Art Style In One Sentence
-
-> **Calm Organic Minimalism** — warm off-black/off-white surfaces (never pure black or pure white), soft blurred shadows instead of hard offsets, generous rounded radii, a single desaturated brand accent kept separate from the emotion palette, and slow, breathing motion instead of snappy mechanical motion.
-
-It is deliberately the *opposite* of neo-brutalism: no thick black borders, no zero-blur offset shadows, no high-contrast "press-a-button" physicality. Every surface should feel like it's exhaling, not clicking into place. The one place structure is allowed to feel more "engineered" is the professional monitoring dashboard (Section 8) — that's for observers, not someone mid check-in.
+> This replaces the orb-wheel visual direction from `manasu-ui-ux.md`. Keep the fonts (Fraunces / Nunito Sans / JetBrains Mono) from that doc — everything else described here supersedes it.
 
 ---
 
-## 2. The Tech Stack
+## 1. The Core Shift (say this out loud before building anything)
 
-| Concern | Choice |
-|---|---|
-| Frontend | **Next.js** (App Router) |
-| Backend | **FastAPI** |
-| Database | **Neon PostgreSQL** |
-| Styling | **Tailwind CSS v4** (`@import "tailwindcss"` + `@theme inline`) |
-| Fonts | **Fraunces** (display/headings — warm optical-size serif) + **Nunito Sans** (body/UI — rounded terminals) + **JetBrains Mono** (numbers/timestamps, dashboard only) |
-| Icons | Hand-inlined SVG primitives — no emoji, no icon library |
-| Theming | CSS custom properties on `:root` and `.dark`, toggled via `.dark` class on `<html>` |
-
-**Why Fraunces + Nunito Sans, not Internly's Plus Jakarta Sans + JetBrains Mono everywhere:** Internly is a utility tool (job tracking) — Manasu is opened by someone in an emotional state. A soft serif for headings signals "journal," not "dashboard." JetBrains Mono is kept, but scoped only to the professional dashboard where data precision matters more than warmth.
+Your current build is **a floating object on an empty page** — one heading, one shape cluster, nothing else. The reference is **a complete product with chrome**: navbar, contained content column, footer, all present and doing work. That's the actual gap — not "circles vs. cards." A page with no navbar and no footer reads as a prototype no matter how nice the shape in the middle looks. Fix the shell first; the selection component is secondary.
 
 ---
 
-## 3. The Design Tokens (single source of truth)
+## 2. Page Anatomy (top to bottom, every screen)
+
+Every screen in the check-in flow — Identify, Refine, Deep Dive, Reflect — sits inside this same shell. Nothing floats alone anymore.
+
+```
+┌─────────────────────────────────────────────┐
+│  NAVBAR (persistent)                         │
+│  ಮನಸು            Check-in  Insights  Library  ⓟ │
+├─────────────────────────────────────────────┤
+│                                               │
+│         [max-width: 640-720px, centered]     │
+│                                               │
+│         STEP X OF 4          [step label]    │
+│         ▬▬▬▬▬▬▬▬░░░░░░░░░░  (progress bar)   │
+│                                               │
+│              Heading (Fraunces)              │
+│           Muted one-line subtext             │
+│                                               │
+│         [ selection grid or list ]           │
+│                                               │
+│         [ optional quote/insight card ]      │
+│                                               │
+├─────────────────────────────────────────────┤
+│  FOOTER: ಮನಸು · tagline    Privacy · Support │
+└─────────────────────────────────────────────┘
+```
+
+### Navbar spec
+- Height ~64px, background matches page background (or 1-2 shades lighter), thin 1px bottom border in `--card-border` — not a floating card, part of the page.
+- Logo (ಮನಸು wordmark) top-left, small, in `--foreground` or `--accent`.
+- Nav items top-right: plain text links (`Check-in`, `Insights`, `Library`), current page underlined in `--accent`. No pill buttons here — text links only, matches reference's restraint.
+- Account avatar, small circle, top-right corner.
+- This exists on every screen, identical, never disappears mid-flow.
+
+### Content container
+- `max-width: 680px`, centered (`margin: 0 auto`), consistent across all 4 steps — this is what makes the flow feel like one product instead of four disconnected screens.
+- Generous top padding (~64-80px) before the step indicator starts.
+
+### Footer
+- Always present, even mid-flow. Small, quiet: wordmark + one-line tagline centered or left, utility links (`Privacy`, `Support`, `Resources`) right-aligned, all in `--muted`.
+- This is what makes it feel like a real, trustworthy product rather than a demo — small detail, disproportionate effect on perceived polish.
+
+### Ambient background treatment
+- Reference uses a very subtle color wash at the page edges (soft blue-lavender bleeding in from corners) rather than a flat single color. For Manasu, do the same with sage/warm tones: a very faint radial gradient using `--accent-dim` bleeding in from top corners against the warm cream base. Barely visible — this is atmosphere, not a feature.
+
+---
+
+## 3. Step Indicator (replaces the current dot-progress)
+
+```
+STEP 1 OF 4                              Emotion Identification
+▬▬▬▬▬▬▬▬▬▬░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+```
+
+- Left: `STEP X OF 4` in small caps, `--muted`, letter-spaced.
+- Right: current step's name (`Emotion Identification`, `Refine`, `Deep Dive`, `Reflection`) — this replaces your current breadcrumb-only approach with something that also orients the user in the overall journey, not just their emotion path.
+- Below: a single thin (~4px) horizontal progress bar, full width of the content container, filled portion in `--accent` (sage), unfilled in `--surface-2`. Rounded ends.
+- The emotion breadcrumb (`Bad → Tired → refine`) can still live *below* the heading as a secondary trail — don't remove it, just don't let it substitute for the step indicator. They serve different jobs: step indicator = "how far in the flow," breadcrumb = "what have I said so far."
+
+---
+
+## 4. Selection Component: Icon-Badge Cards (replaces orbs)
+
+This is the single biggest component change. Replace the big glowing color orbs with this pattern:
+
+```
+┌─────────────┐
+│     ⊙        │  ← small circular icon badge, pastel fill, ~48px
+│             │
+│   Happy     │  ← label below, medium weight, small
+└─────────────┘
+```
+
+- Card: white/`--card` background, thin `1px solid --card-border`, radius `16px` (your existing `--radius-sm` token), soft shadow (`--shadow-soft-sm`) — not the fully-rounded pill shape from your last build.
+- Icon badge: small circle (~48-56px) centered at top of card, background is a *pastel tint* of the emotion color (not the full-saturation color) — e.g. `color-mix(in srgb, var(--emotion-happy) 25%, white 75%)` — containing a simple line-icon or face glyph in the full-saturation emotion color.
+- Label: sits below the badge, `Nunito Sans` medium weight, colored in a muted tint of the emotion hue (not pure grey, not full saturation) — this is what gives each card its identity without shouting.
+- Grid layout: clean rows (3-4 per row depending on breakpoint), consistent gaps, left-to-right reading order — **not** the radial flower/hexagon arrangement. The reference's power is in how *orderly* it looks; a scannable grid outperforms a decorative cluster here.
+- Selected state: border becomes `--accent`, subtle `--accent-dim` background wash on the whole card — no big glow, no pulse. Calm means calm on interaction too, not just at rest.
+
+This same card pattern carries through **Refine** and **Deep Dive** steps — just as full-width rows instead of a grid (since those are text-only options like "Boredom," "Stress," "Tired" with no icon), same border/radius/shadow language so it doesn't feel like a different component each screen.
+
+---
+
+## 5. Quote / Insight Card
+
+Appears at the bottom of Step 1 and drives the Reflect step's final screen.
+
+- Background: a muted warm tan/beige (`--surface-2` or a dedicated `--quote-bg` token), noticeably different from the white cards — signals "this is a moment to pause," not another selectable option.
+- A large decorative quotation mark (`"`) above the text, in `--muted`, low opacity — small detail, does a lot of work.
+- Quote text: `Fraunces`, italic, centered, medium size — this is the one place italic serif should appear; don't overuse it elsewhere or it loses its weight as a "special moment" signal.
+- On the Reflect step, this same card becomes the final result: breadcrumb trail above it (`Bad · Tired · Blurry`), the reflection text inside, then two buttons below — filled `--accent` "This helped" / outline "Not quite" — exactly the pattern already in your Reflect screen, just now living inside the full page shell instead of alone on a blank background.
+
+---
+
+## 6. Applying This Across All 4 Steps
+
+| Step | Heading | Body | Notes |
+|---|---|---|---|
+| **1. Identify** | "How are you feeling right now?" | 7 icon-badge cards in a grid + quote card below | Full shell, step indicator at 1/4 |
+| **2. Refine** | "A little more specific" | Full-width list-row cards (Boredom, Busy, Stress...) | Breadcrumb shows `Bad →`, step indicator at 2/4 |
+| **3. Deep Dive** | "Almost there" | Full-width list-row cards (Sleepy, Blurry...) | Breadcrumb shows `Bad → Tired →`, step indicator at 3/4 |
+| **4. Reflect** | (no heading — quote card is the focus) | Quote card + breadcrumb tag row + This helped/Not quite | Step indicator at 4/4, 100% |
+
+Every step keeps: same navbar, same footer, same `680px` centered container, same step-indicator bar, same card border/radius/shadow language. The *only* thing that changes screen to screen is what's inside the container.
+
+---
+
+## 7. Do / Don't
+
+**Do:**
+- Keep Fraunces for all headings, Nunito Sans for body/labels, JetBrains Mono nowhere in this flow (it's dashboard-only)
+- Keep every screen inside the same navbar+footer+container shell
+- Use pastel icon badges, not full-saturation orbs, for emotion identity
+- Keep the accent (sage) consistent across progress bar, selected states, and primary buttons
+
+**Don't:**
+- Don't let any screen exist without the navbar/footer shell — that's the #1 thing making the current build feel unfinished
+- Don't bring back the radial/flower orb arrangement — grid rows read cleaner and match the reference's orderliness
+- Don't use full-pill (fully rounded) shape for selection cards — moderate radius only
+- Don't add glow/pulse effects to selection cards — save "energy" for the accent color and progress bar, keep card interactions quiet
+
+---
+
+## 8. Token Additions Needed (on top of `manasu-ui-ux.md`'s existing tokens)
 
 ```css
-/* Light Mode (default) */
-:root {
-  --background: #faf6f0;        /* warm cream, not pure white */
-  --foreground: #2b2620;        /* warm near-black, not pure black */
-  --card: #ffffff;
-  --card-border: #e8e0d4;       /* soft warm border — NOT black */
-  --card-hover: #fdf9f2;
+--container-max: 680px;
+--navbar-height: 64px;
+--quote-bg: #f0e9dc;              /* muted tan, distinct from --card white */
+--icon-badge-size: 52px;
 
-  --accent: #7c9885;            /* muted sage — brand chrome only, never used for emotions */
-  --accent-light: #a3bfaa;
-  --accent-dim: rgba(124, 152, 133, 0.12);
-  --accent-glow: rgba(124, 152, 133, 0.25);
-
-  --muted: #8b8378;
-  --success: #7c9885;
-  --error: #c97b63;             /* muted terracotta, not alarm-red */
-  --warning: #d9a566;
-
-  --surface-1: #ffffff;
-  --surface-2: #f3eee5;
-  --header-bg: rgba(250, 246, 240, 0.8); /* blurred glass header, not solid */
-
-  --shadow-color: rgba(43, 38, 32, 0.12);
-  --shadow-soft: 0 8px 24px var(--shadow-color);      /* blurred, no offset — opposite of brutalist */
-  --shadow-soft-lg: 0 16px 40px var(--shadow-color);
-  --shadow-soft-sm: 0 4px 12px var(--shadow-color);
-
-  --border-width: 1px;          /* thin — brutalism uses 2px+ */
-  --radius: 24px;
-  --radius-sm: 16px;
-  --radius-lg: 32px;
-  --radius-pill: 9999px;
-  --overlay-bg: rgba(43, 38, 32, 0.4);
-
-  /* Emotion palette — desaturated ~20% from the raw wireframe colors, each paired with a soft glow */
-  --emotion-bad: #a8a395;       --emotion-bad-glow: rgba(168, 163, 149, 0.35);
-  --emotion-afraid: #b79fd1;    --emotion-afraid-glow: rgba(183, 159, 209, 0.35);
-  --emotion-angry: #e0937e;     --emotion-angry-glow: rgba(224, 147, 126, 0.35);
-  --emotion-disgust: #8fc7a8;   --emotion-disgust-glow: rgba(143, 199, 168, 0.35);
-  --emotion-sad: #8fb8d9;       --emotion-sad-glow: rgba(143, 184, 217, 0.35);
-  --emotion-happy: #e8a9be;     --emotion-happy-glow: rgba(232, 169, 190, 0.35);
-  --emotion-surprise: #e8be7e;  --emotion-surprise-glow: rgba(232, 190, 126, 0.35);
-}
-
-/* Dark Mode — warm charcoal, never true black */
-.dark {
-  --background: #211d18;
-  --foreground: #f2ece2;
-  --card: #2c2721;
-  --card-border: #3d362d;
-  --card-hover: #332d26;
-  --accent: #9bb89f;             /* lightens for contrast, stays sage — not violet */
-  --accent-dim: rgba(155, 184, 159, 0.14);
-  --accent-glow: rgba(155, 184, 159, 0.28);
-  --surface-1: #2c2721;
-  --surface-2: #332d26;
-  --header-bg: rgba(33, 29, 24, 0.8);
-  --shadow-color: rgba(0, 0, 0, 0.35);
-  /* emotion hues lighten slightly for dark-mode contrast; same hue family, don't reinvent */
-}
+/* Pastel icon badge backgrounds — 25% emotion color mixed into white */
+--emotion-happy-badge: color-mix(in srgb, var(--emotion-happy) 25%, white 75%);
+--emotion-sad-badge: color-mix(in srgb, var(--emotion-sad) 25%, white 75%);
+/* ...repeat per emotion */
 ```
-
-**Key rules for replication:**
-- **No pure black, no pure white, anywhere, in either mode.** This is the single biggest thing that separates this from the Internly/neo-brutalist system.
-- **Shadows are always blurred, never offset.** `0 Ypx Zpx` — no `Xpx Ypx 0`. Offset-zero-blur shadows read as "physical/mechanical," which is exactly what we don't want here.
-- **The brand accent (sage) is never reused as an emotion color**, and no emotion color is ever reused as the brand accent. Keeps the "how am I feeling" data visually distinct from "chrome" (buttons, links, nav).
-- Borders are **thin (1px) and soft-colored**, not thick and black — borders should barely announce themselves.
-
----
-
-## 4. Tailwind v4 Theme Bridge & Fonts
-
-```css
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-display: "Fraunces", ui-serif, serif;
-  --font-sans: "Nunito Sans", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
-}
-
-html {
-  font-size: 17px;
-}
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-weight: 400;             /* lighter than Internly's 500 — less "confident SaaS," more "gentle" */
-  line-height: 1.7;             /* airier than a dashboard */
-  -webkit-font-smoothing: antialiased;
-}
-h1, h2, h3, .heading {
-  font-family: var(--font-display);
-  font-weight: 500;
-  letter-spacing: -0.01em;
-}
-```
-
-Loaded via `next/font/google` in `layout.tsx`:
-
-```tsx
-const fraunces = Fraunces({ subsets: ["latin"], weight: ["400","500","600"], display: "swap" });
-const nunitoSans = Nunito_Sans({ subsets: ["latin"], weight: ["400","500","600","700"], display: "swap" });
-const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], display: "swap" }); // dashboard only
-```
-
----
-
-## 5. The Reusable "Calm" Component Classes
-
-### `.calm-card` — resting surface, not a pressable button
-
-```css
-.calm-card {
-  background: var(--card);
-  border: var(--border-width) solid var(--card-border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-soft);
-  transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.4s ease,
-              transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.calm-card:hover {
-  box-shadow: var(--shadow-soft-lg);
-  transform: translateY(-2px);   /* subtle float, not a mechanical lift */
-  border-color: var(--accent-light);
-}
-```
-Note there's no `:active` snap-down state like Internly's `.neo-card` — calm surfaces don't need to feel "pressed," they just need to feel present.
-
-### `.emotion-orb` — the check-in circles, replacing the flat-fill wireframe circles
-
-```css
-.emotion-orb {
-  border-radius: var(--radius-pill);
-  background: radial-gradient(circle at 35% 30%, var(--orb-color-light), var(--orb-color));
-  box-shadow: 0 12px 32px var(--orb-glow);
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.35s ease;
-}
-.emotion-orb:hover {
-  transform: scale(1.06);
-  box-shadow: 0 16px 44px var(--orb-glow);
-}
-.emotion-orb:active {
-  transform: scale(0.97);
-}
-.emotion-orb.selected {
-  animation: gentlePulse 2.4s ease-in-out infinite;
-}
-```
-`--orb-color`, `--orb-color-light`, `--orb-glow` are set inline per emotion from the tokens in Section 3 (e.g. `--orb-color: var(--emotion-sad)`).
-
-### `.calm-button` — pill CTA, soft not tactile
-
-```css
-.calm-button {
-  background: var(--accent);
-  color: var(--surface-1);
-  border-radius: var(--radius-pill);
-  padding: 0.75rem 1.75rem;
-  box-shadow: var(--shadow-soft-sm);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
-}
-.calm-button:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-soft);
-  background: var(--accent-light);
-}
-```
-
-### `.calm-input` and `.calm-chip`
-Same border/radius/shadow language as `.calm-card`, thin soft border, focus state uses `--accent-glow` as a soft outer glow (`box-shadow: 0 0 0 4px var(--accent-glow)`) rather than a hard focus ring.
-
----
-
-## 6. Motion Language
-
-Motion should read as **breathing, not clicking.** Concretely:
-
-| Keyframe | Used for | Duration |
-|---|---|---|
-| `fadeInUp` | cards/content entering | 0.5s (vs. 0.2s brutalist — slower reads as calmer) |
-| `gentlePulse` | selected emotion orb, active status dot | 2.4s infinite loop |
-| `breathe` | primary CTA on the check-in screen, ambient/idle state | 4s infinite loop |
-| `softShimmer` | skeleton loaders | 2.2s infinite |
-
-```css
-@keyframes gentlePulse {
-  0%, 100% { box-shadow: 0 12px 32px var(--orb-glow); }
-  50% { box-shadow: 0 16px 48px var(--orb-glow); }
-}
-@keyframes breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.03); }
-}
-```
-
-### Staggered reveals — slower cadence than brutalist
-
-```css
-.stagger-1 { animation-delay: 0.08s; }
-.stagger-2 { animation-delay: 0.16s; }
-/* ...0.08s increments, vs. Internly's 0.04s — the check-in wheel should feel unhurried */
-```
-
-**Hard rule:** no transition under 300ms anywhere in the check-in flow. Snappy motion reads as urgency, which is the opposite of what this screen should communicate.
-
----
-
-## 7. Content & Copy Rules
-
-- **"Nudges, not streaks."** Never punish a missed check-in ("You missed 3 days") — reframe supportively ("We're here whenever you're ready").
-- **No forced fields during check-in.** One tap should always be a complete, valid entry. Optional detail (notes, intensity) comes after, never blocks the primary action.
-- **Consistent chrome position.** Nav, help, and exit affordances stay in the same place on every screen — this matters more here than in most apps, since users may be checking in during genuine distress.
-- **Numbers are mono, everywhere they appear** (streak counts, timestamps, dashboard metrics) — this is the one convention kept from Internly, since precision-reading still benefits from tabular figures even in a warm UI.
-
----
-
-## 8. Two Registers: Check-In Flow vs. Professional Dashboard
-
-Manasu needs to hold two different visual personalities without feeling like two different products:
-
-| | Check-in flow | Professional monitoring dashboard |
-|---|---|---|
-| Surface | `.emotion-orb`, `.calm-card` | `.calm-card` + `surface-2` panels |
-| Shadow | Soft, glowing, color-matched | Soft, neutral (`--shadow-color` only) |
-| Typography | Fraunces for prompts, generous line-height | Nunito Sans body + JetBrains Mono for all figures |
-| Density | Very low — one decision per screen | Higher — tables, trend charts, filters allowed |
-| Motion | Breathing, slow (Section 6) | Faster fades (0.3s), no ambient pulsing |
-| Color | Full emotion palette | Mostly neutral + sage accent; emotion colors only in small trend indicators |
-
-Both share the same token file — the dashboard just uses `surface-2`/mono/faster-motion variants of the same primitives, rather than a separate system.
-
----
-
-## 9. How To Build This — Step-By-Step
-
-### Step 0 — Brief for an agent
-
-> "Build the UI using a **Calm Organic Minimalism** style. Warm off-white (`#faf6f0`) / warm charcoal (`#211d18`) surfaces — never pure black or white. Soft blurred box-shadows only (`0 Ypx Zpx`), never hard-offset zero-blur shadows. Radii 16–32px. One brand accent (muted sage `#7c9885`) used only for chrome — never for emotion data. Fonts: Fraunces for headings, Nunito Sans for body, JetBrains Mono for numbers. All transitions ≥300ms, ease-out or spring, no snap states. Provide `.calm-card`, `.calm-button`, `.calm-input`, `.calm-chip`, `.emotion-orb` utility classes. Motion: `fadeInUp`, `gentlePulse`, `breathe`, `softShimmer` keyframes, `stagger-N` at 0.08s increments. Always include loading/empty/error states, written in supportive, non-punitive copy."
-
-### Step 1 — Scaffold
-```bash
-npx create-next-app@latest manasu-web --ts --app
-```
-
-### Step 2 — Drop in tokens
-Copy Section 3 + 4 CSS blocks verbatim into `globals.css`.
-
-### Step 3 — Wire fonts
-`next/font/google` for Fraunces, Nunito Sans, JetBrains Mono per Section 4.
-
-### Step 4 — Build primitives
-`.calm-card`, `.calm-button`, `.calm-input`, `.calm-chip`, `.emotion-orb` per Section 5.
-
-### Step 5 — Rebuild the check-in screen
-Replace flat-fill circles with `.emotion-orb` + radial gradient + glow, on the warm-cream/charcoal background instead of pure black, arranged in a balanced layout (no orphaned single circle — center it or use a proper flower/ring arrangement).
-
-### Step 6 — Build the dashboard variant
-Reuse the same tokens with `surface-2`, mono numerics, faster transitions per Section 8.
-
-### Step 7 — Pre-flight checklist
-- [ ] No pure black or pure white anywhere
-- [ ] All shadows are blurred, zero offset-only shadows
-- [ ] Brand accent never doubles as an emotion color
-- [ ] No transition under 300ms in the check-in flow
-- [ ] Copy avoids guilt/streak-shaming language
-- [ ] Dashboard and check-in flow share one token file, not two systems
-- [ ] No emoji; SVG icons only
-
----
-
-## 10. Proposed File Map
-
-*(Manasu's frontend doesn't have these files yet — this is where they should live once built, mirroring the Internly structure for consistency across your projects.)*
-
-| File | Role |
-|---|---|
-| `src/app/globals.css` | All tokens, `.calm-*` classes, keyframes, emotion palette |
-| `src/app/layout.tsx` | Font loading (Fraunces, Nunito Sans, JetBrains Mono) |
-| `src/app/components/EmotionWheel.tsx` | The check-in screen — orbs, selection state, stagger reveal |
-| `src/app/components/ThemeToggle.tsx` | Light/dark switch, anti-flash placeholder |
-| `src/app/components/StatusBanner.tsx` | idle/loading/error/success states, warm copy |
-| `src/app/components/dashboard/*` | Professional dashboard — surface-2, mono figures, faster motion |
 
 ---
 
 ### TL;DR
 
-A **token-first Calm Organic system**: warm off-black/off-white surfaces (never true black/white), blurred soft shadows (never hard offsets), one sage brand accent kept strictly separate from the desaturated emotion palette, thin soft borders, generous radii, and slow breathing motion (≥300ms, gentle pulses) instead of snappy mechanical motion. The check-in flow and professional dashboard share one token file but run at different density/speed settings. To build it: copy the token block, load Fraunces + Nunito Sans + JetBrains Mono, build every surface from `.calm-card`/`.calm-button`/`.emotion-orb`, and never let a shadow, a border, or a transition feel harder or faster than it needs to.
+Stop designing individual screens — design **one shell** (navbar, 680px centered container, footer, step-indicator bar) and drop each of the 4 steps into it unchanged. Replace glowing orbs with small pastel icon-badge cards in an orderly grid. Keep Fraunces for headings and the sage accent for progress/selected-states/buttons only. The reference feels "clean" primarily because it's *structurally complete*, not because any single component is fancier than what you already built.

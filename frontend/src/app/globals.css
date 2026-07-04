@@ -1,108 +1,232 @@
-/* ------------------------------------------------------------------ */
-/* globals.css — Manasu check-in flow                                  */
-/* ------------------------------------------------------------------ */
+@import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-display: "Fraunces", ui-serif, serif;
+  --font-sans: "Nunito Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
-html, body {
-  width: 100%;
-  min-height: 100vh;
-  overflow-x: hidden;
-  background: #1a1614;
-  color: rgba(255,255,255,0.85);
-  font-family: system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@layer base {
+  :root {
+    --background: #faf6f0;
+    --foreground: #2b2620;
+    --card: #ffffff;
+    --card-border: #e8e0d4;
+    --card-hover: #fdf9f2;
 
-/* ------------------------------------------------------------------ */
-/* Spinner keyframe                                                    */
-/* ------------------------------------------------------------------ */
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+    --accent: #7c9885;
+    --accent-light: #a3bfaa;
+    --accent-dim: rgba(124, 152, 133, 0.12);
+    --accent-glow: rgba(124, 152, 133, 0.25);
 
-/* ------------------------------------------------------------------ */
-/* Loading pulse keyframe for quote skeleton                           */
-/* ------------------------------------------------------------------ */
-@keyframes pulse-soft {
-  0%, 100% { opacity: 0.4; }
-  50%      { opacity: 0.9; }
-}
+    --muted: #8b8378;
+    --success: #7c9885;
+    --error: #c97b63;
+    --warning: #d9a566;
 
-/* ------------------------------------------------------------------ */
-/* Screen entrance animation                                           */
-/* ------------------------------------------------------------------ */
-@keyframes screen-enter {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
+    --surface-1: #ffffff;
+    --surface-2: #f3eee5;
+    --header-bg: rgba(250, 246, 240, 0.8);
+
+    --shadow-color: rgba(43, 38, 32, 0.12);
+    --shadow-soft: 0 8px 24px var(--shadow-color);
+    --shadow-soft-lg: 0 16px 40px var(--shadow-color);
+    --shadow-soft-sm: 0 4px 12px var(--shadow-color);
+
+    --border-width: 1px;
+    --radius: 24px;
+    --radius-sm: 16px;
+    --radius-lg: 32px;
+    --radius-pill: 9999px;
+    --overlay-bg: rgba(43, 38, 32, 0.4);
+
+    --emotion-bad: #b4aa89;
+    --emotion-afraid: #b79fd1;
+    --emotion-angry: #e0937e;
+    --emotion-disgust: #7ad0a0;
+    --emotion-sad: #8fb8d9;
+    --emotion-happy: #e8a9be;
+    --emotion-surprise: #e8be7e;
+
+    /* New Structural Calm Tokens */
+    --container-max: 680px;
+    --navbar-height: 64px;
+    --quote-bg: #f0e9dc;
+    --icon-badge-size: 48px;
+
+    /* Pastel icon badge backgrounds */
+    --emotion-bad-badge: color-mix(in srgb, var(--emotion-bad) 25%, white 75%);
+    --emotion-afraid-badge: color-mix(in srgb, var(--emotion-afraid) 25%, white 75%);
+    --emotion-angry-badge: color-mix(in srgb, var(--emotion-angry) 25%, white 75%);
+    --emotion-disgust-badge: color-mix(in srgb, var(--emotion-disgust) 25%, white 75%);
+    --emotion-sad-badge: color-mix(in srgb, var(--emotion-sad) 25%, white 75%);
+    --emotion-happy-badge: color-mix(in srgb, var(--emotion-happy) 25%, white 75%);
+    --emotion-surprise-badge: color-mix(in srgb, var(--emotion-surprise) 25%, white 75%);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .dark {
+    --background: #211d18;
+    --foreground: #f2ece2;
+    --card: #2c2721;
+    --card-border: #3d362d;
+    --card-hover: #332d26;
+    --accent: #9bb89f;
+    --accent-dim: rgba(155, 184, 159, 0.14);
+    --surface-1: #2c2721;
+    --surface-2: #332d26;
+    --header-bg: rgba(33, 29, 24, 0.8);
+    --shadow-color: rgba(0, 0, 0, 0.35);
+    --quote-bg: #2a251e;
+
+    --emotion-bad-badge: color-mix(in srgb, var(--emotion-bad) 25%, #2c2721 75%);
+    --emotion-afraid-badge: color-mix(in srgb, var(--emotion-afraid) 25%, #2c2721 75%);
+    --emotion-angry-badge: color-mix(in srgb, var(--emotion-angry) 25%, #2c2721 75%);
+    --emotion-disgust-badge: color-mix(in srgb, var(--emotion-disgust) 25%, #2c2721 75%);
+    --emotion-sad-badge: color-mix(in srgb, var(--emotion-sad) 25%, #2c2721 75%);
+    --emotion-happy-badge: color-mix(in srgb, var(--emotion-happy) 25%, #2c2721 75%);
+    --emotion-surprise-badge: color-mix(in srgb, var(--emotion-surprise) 25%, #2c2721 75%);
+  }
+
+  html {
+    font-size: 17px;
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-weight: 400;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .heading {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.01em;
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Staggered pill entrance                                             */
-/* ------------------------------------------------------------------ */
-@keyframes fade-slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(14px) scale(0.95);
+@layer components {
+  .calm-card {
+    background: var(--card);
+    border: var(--border-width) solid var(--card-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+    transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.4s ease,
+                transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                background-color 0.4s ease;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+  .calm-card:hover {
+    box-shadow: var(--shadow-soft-lg);
+    transform: translateY(-2px);
+    border-color: var(--accent-light);
+  }
+  
+  .calm-card.selected {
+    border-color: var(--accent);
+    background-color: var(--accent-dim);
+  }
+
+  .ambient-bg {
+    position: relative;
+    width: 100%;
+    min-height: 100dvh;
+  }
+  
+  .ambient-bg::before,
+  .ambient-bg::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    width: 50vw;
+    height: 50vh;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(120px);
+    opacity: 0.6;
+    background: radial-gradient(circle at top corner, var(--accent-dim), transparent 70%);
+  }
+  
+  .ambient-bg::before {
+    left: 0;
+    background: radial-gradient(circle at top left, var(--accent-dim), transparent 70%);
+  }
+  
+  .ambient-bg::after {
+    right: 0;
+    background: radial-gradient(circle at top right, var(--accent-dim), transparent 70%);
+  }
+
+  .calm-button {
+    background: var(--accent);
+    color: var(--surface-1);
+    border-radius: var(--radius-pill);
+    padding: 0.75rem 1.75rem;
+    box-shadow: var(--shadow-soft-sm);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  }
+  .calm-button:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-soft);
+    background: var(--accent-light);
+  }
+
+  .calm-input {
+    background: var(--card);
+    border: var(--border-width) solid var(--card-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft-sm);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .calm-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-glow);
+  }
+
+  .calm-chip {
+    background: var(--card);
+    border: var(--border-width) solid var(--card-border);
+    border-radius: var(--radius-pill);
+    padding: 0.5rem 1rem;
+    box-shadow: var(--shadow-soft-sm);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .calm-chip:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-glow);
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Logged checkmark fade                                               */
-/* ------------------------------------------------------------------ */
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
+@layer utilities {
+  @keyframes gentlePulse {
+    0%, 100% { box-shadow: 0 12px 32px var(--orb-glow); }
+    50% { box-shadow: 0 16px 48px var(--orb-glow); }
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
   }
-}
-
-@keyframes fade-out {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
-
-/* ------------------------------------------------------------------ */
-/* Login / Profile input styles                                        */
-/* ------------------------------------------------------------------ */
-.manasu-input::placeholder {
-  color: rgba(255, 255, 255, 0.25);
-}
-
-.manasu-input:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.25) !important;
-}
-
-/* ------------------------------------------------------------------ */
-/* Stat number typography                                              */
-/* ------------------------------------------------------------------ */
-.manasu-stat-num {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 28px;
-  color: rgba(255, 255, 255, 0.8);
-  line-height: 1;
+  @keyframes softShimmer {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+  }
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .stagger-1 { animation-delay: 0.08s; }
+  .stagger-2 { animation-delay: 0.16s; }
+  .stagger-3 { animation-delay: 0.24s; }
+  .stagger-4 { animation-delay: 0.32s; }
 }

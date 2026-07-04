@@ -1,7 +1,7 @@
 """
 prompt_builder.py — the core intelligence of the app.
 
-This module builds the prompt sent to Claude. It takes structured emotion
+This module builds the prompt sent to LLM. It takes structured emotion
 data and shapes it into a context-rich prompt that produces emotionally
 resonant quotes rather than generic ones.
 

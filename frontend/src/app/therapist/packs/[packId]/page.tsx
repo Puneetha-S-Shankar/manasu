@@ -129,8 +129,8 @@ function QuotePackDetailPage({ params }: { params: Promise<{ packId: string }> }
 
   if (error || !pack) {
     return (
-      <div className="flex flex-col min-h-full items-center justify-center p-8 text-white text-center">
-        <div className="text-[16px] text-white/50 mb-4">Quote Pack not found</div>
+      <div className="flex flex-col min-h-full items-center justify-center p-8 text-[var(--foreground)] text-center">
+        <div className="text-[16px] text-[var(--muted)] mb-4">Quote Pack not found</div>
         <button onClick={() => router.push("/therapist/packs")} className="text-[#C084FC] hover:underline">
           Return to Quote Packs
         </button>
@@ -139,10 +139,10 @@ function QuotePackDetailPage({ params }: { params: Promise<{ packId: string }> }
   }
 
   return (
-    <div className="flex flex-col min-h-full p-4 md:p-8 max-w-[1200px] mx-auto w-full gap-6 pb-24 font-sans text-white">
+    <div className="flex flex-col min-h-full p-4 md:p-8 max-w-[1200px] mx-auto w-full gap-6 pb-24 font-sans text-[var(--foreground)]">
       <button 
         onClick={() => router.push("/therapist/packs")}
-        className="flex items-center gap-2 text-[13px] text-white/40 hover:text-white/80 transition-colors w-fit"
+        className="flex items-center gap-2 text-[13px] text-[var(--muted)] hover:text-[var(--foreground)] transition-colors w-fit"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Packs
@@ -150,13 +150,13 @@ function QuotePackDetailPage({ params }: { params: Promise<{ packId: string }> }
 
       <div className="flex flex-col md:flex-row md:items-center justify-between bg-white/[0.02] border border-white/[0.05] rounded-[14px] p-6 gap-4">
         <div>
-          <h1 className="text-[20px] font-semibold text-white/90 mb-1">{pack.name}</h1>
+          <h1 className="text-[20px] font-semibold text-[var(--foreground)] mb-1">{pack.name}</h1>
           {pack.description && (
-            <p className="text-[13px] text-white/50 max-w-2xl">{pack.description}</p>
+            <p className="text-[13px] text-[var(--muted)] max-w-2xl">{pack.description}</p>
           )}
           <div className="flex flex-wrap gap-1.5 mt-3">
             {pack.tags.map((t) => (
-              <span key={t} className="bg-white/[0.06] border border-white/[0.08] text-white/40 text-[11px] px-[10px] py-[3px] rounded-full">
+              <span key={t} className="bg-[var(--surface-2)] border border-[var(--card-border)] text-[var(--muted)] text-[11px] px-[10px] py-[3px] rounded-full">
                 {t}
               </span>
             ))}
@@ -173,8 +173,8 @@ function QuotePackDetailPage({ params }: { params: Promise<{ packId: string }> }
 
       {quotes.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 bg-white/[0.02] border border-white/[0.05] rounded-[14px]">
-          <div className="text-[15px] font-medium text-white/70 mb-2">This pack is empty</div>
-          <div className="text-[13px] text-white/40 mb-6">Add quotes to share them with your clients.</div>
+          <div className="text-[15px] font-medium text-[var(--foreground)] mb-2">This pack is empty</div>
+          <div className="text-[13px] text-[var(--muted)] mb-6">Add quotes to share them with your clients.</div>
           <button
             onClick={() => setModalOpen(true)}
             className="text-[#C084FC] text-[13px] hover:underline flex items-center gap-1"
@@ -185,14 +185,14 @@ function QuotePackDetailPage({ params }: { params: Promise<{ packId: string }> }
       ) : (
         <div className="flex flex-col gap-3">
           {quotes.map((q) => (
-            <div key={q.id} className="bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.05] rounded-xl p-5 flex flex-col md:flex-row gap-4 justify-between transition-colors group">
+            <div key={q.id} className="bg-[var(--surface-2)] hover:bg-[var(--surface-2)] border border-white/[0.05] rounded-xl p-5 flex flex-col md:flex-row gap-4 justify-between transition-colors group">
               <div className="flex-1">
-                <div className="text-[15px] text-white/90 leading-relaxed mb-2 font-serif italic">"{q.content}"</div>
-                {q.author && <div className="text-[13px] text-white/40 mb-3">— {q.author}</div>}
+                <div className="text-[15px] text-[var(--foreground)] leading-relaxed mb-2 font-serif italic">"{q.content}"</div>
+                {q.author && <div className="text-[13px] text-[var(--muted)] mb-3">— {q.author}</div>}
                 
                 <div className="flex flex-wrap gap-1.5">
                   {q.tags.map((t) => (
-                    <span key={t} className="bg-white/[0.06] border border-white/[0.08] text-white/40 text-[11px] px-[10px] py-[3px] rounded-full">
+                    <span key={t} className="bg-[var(--surface-2)] border border-[var(--card-border)] text-[var(--muted)] text-[11px] px-[10px] py-[3px] rounded-full">
                       {t}
                     </span>
                   ))}
@@ -201,7 +201,7 @@ function QuotePackDetailPage({ params }: { params: Promise<{ packId: string }> }
               
               <button 
                 onClick={() => handleDelete(q.id)}
-                className="opacity-0 group-hover:opacity-100 transition-opacity text-white/30 hover:text-[#F97060] p-2 h-fit shrink-0 rounded-md hover:bg-white/5"
+                className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--muted)] hover:text-[#F97060] p-2 h-fit shrink-0 rounded-md hover:bg-[var(--surface-2)]"
                 title="Remove quote"
               >
                 <Trash2 className="w-4 h-4" />
@@ -214,51 +214,51 @@ function QuotePackDetailPage({ params }: { params: Promise<{ packId: string }> }
       {/* New Quote Modal */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-[#1f1c19] border border-white/[0.08] rounded-[16px] p-8 max-w-[480px] w-full shadow-2xl relative">
+          <div className="bg-[#1f1c19] border border-[var(--card-border)] rounded-[16px] p-8 max-w-[480px] w-full shadow-2xl relative">
             <button
               onClick={() => setModalOpen(false)}
-              className="absolute top-4 right-4 p-2 text-white/30 hover:text-white/70 transition-colors rounded-full hover:bg-white/5"
+              className="absolute top-4 right-4 p-2 text-[var(--muted)] hover:text-[var(--foreground)] transition-colors rounded-full hover:bg-[var(--surface-2)]"
             >
               <X className="w-5 h-5" />
             </button>
-            <h2 className="text-[18px] font-semibold text-white/90 mb-6">Add Quote to Pack</h2>
+            <h2 className="text-[18px] font-semibold text-[var(--foreground)] mb-6">Add Quote to Pack</h2>
 
             <form onSubmit={handleCreate} className="flex flex-col gap-4">
               <div>
-                <label className="block text-[12px] text-white/50 mb-1.5">Quote Content</label>
+                <label className="block text-[12px] text-[var(--muted)] mb-1.5">Quote Content</label>
                 <textarea
                   required
                   value={newContent}
                   onChange={(e) => setNewContent(e.target.value)}
                   placeholder="The text of the quote..."
-                  className="w-full bg-white/[0.03] border border-white/[0.1] focus:border-white/[0.25] rounded-lg px-4 py-3 text-[13px] text-white/90 outline-none transition-colors h-24 resize-none"
+                  className="w-full bg-[var(--surface-2)] border border-[var(--card-border)] focus:border-[var(--card-border)] rounded-lg px-4 py-3 text-[13px] text-[var(--foreground)] outline-none transition-colors h-24 resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-[12px] text-white/50 mb-1.5">Author (Optional)</label>
+                <label className="block text-[12px] text-[var(--muted)] mb-1.5">Author (Optional)</label>
                 <input
                   type="text"
                   value={newAuthor}
                   onChange={(e) => setNewAuthor(e.target.value)}
                   placeholder="e.g. Carl Jung"
-                  className="w-full bg-white/[0.03] border border-white/[0.1] focus:border-white/[0.25] rounded-lg px-4 py-3 text-[13px] text-white/90 outline-none transition-colors"
+                  className="w-full bg-[var(--surface-2)] border border-[var(--card-border)] focus:border-[var(--card-border)] rounded-lg px-4 py-3 text-[13px] text-[var(--foreground)] outline-none transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-[12px] text-white/50 mb-1.5">Tags (Press Enter to add)</label>
-                <div className="bg-white/[0.03] border border-white/[0.1] focus-within:border-white/[0.25] rounded-lg p-2 flex flex-wrap gap-2 transition-colors min-h-[48px] items-center">
+                <label className="block text-[12px] text-[var(--muted)] mb-1.5">Tags (Press Enter to add)</label>
+                <div className="bg-[var(--surface-2)] border border-[var(--card-border)] focus-within:border-[var(--card-border)] rounded-lg p-2 flex flex-wrap gap-2 transition-colors min-h-[48px] items-center">
                   {newTags.map((t) => (
                     <span
                       key={t}
-                      className="bg-white/[0.08] border border-white/[0.1] text-white/60 text-[11px] px-[10px] py-[4px] rounded-full flex items-center gap-1.5"
+                      className="bg-[var(--surface-2)] border border-[var(--card-border)] text-[var(--muted)] text-[11px] px-[10px] py-[4px] rounded-full flex items-center gap-1.5"
                     >
                       {t}
                       <button
                         type="button"
                         onClick={() => handleRemoveTag(t)}
-                        className="hover:text-white/90"
+                        className="hover:text-[var(--foreground)]"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -270,7 +270,7 @@ function QuotePackDetailPage({ params }: { params: Promise<{ packId: string }> }
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={handleAddTag}
                     placeholder={newTags.length === 0 ? "Add tags..." : ""}
-                    className="flex-1 bg-transparent border-none outline-none text-[13px] text-white/90 min-w-[100px] px-2 py-1"
+                    className="flex-1 bg-transparent border-none outline-none text-[13px] text-[var(--foreground)] min-w-[100px] px-2 py-1"
                   />
                 </div>
               </div>

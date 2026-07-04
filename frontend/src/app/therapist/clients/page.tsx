@@ -148,19 +148,19 @@ export default function ClientsPage() {
   if (needsProfile) return null; // Let the redirect happen
 
   return (
-    <div className="flex flex-col min-h-full p-4 md:p-8 text-white max-w-[1200px] mx-auto w-full">
+    <div className="flex flex-col min-h-full p-4 md:p-8 text-[var(--foreground)] max-w-[1200px] mx-auto w-full">
       {/* Top Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pt-2 md:pt-0">
-        <h1 className="text-[16px] font-semibold text-white/[0.85]">Clients</h1>
+        <h1 className="text-[16px] font-semibold text-[var(--foreground)]/[0.85]">Clients</h1>
         <div className="flex items-center gap-3">
           <div className="relative w-full md:w-[220px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted)]" />
             <input
               type="text"
               placeholder="Search clients..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-white/[0.05] border border-white/[0.1] focus:border-white/[0.25] rounded-[10px] py-2 pl-9 pr-4 text-[13px] text-white/80 outline-none transition-colors"
+              className="w-full bg-[var(--surface-2)] border border-[var(--card-border)] focus:border-[var(--card-border)] rounded-[10px] py-2 pl-9 pr-4 text-[13px] text-[var(--foreground)] outline-none transition-colors"
             />
           </div>
           <button 
@@ -177,25 +177,25 @@ export default function ClientsPage() {
         {loading ? (
           <div className="flex-1 flex flex-col items-center justify-center py-20 gap-4">
             <div className="w-12 h-12 border-[3px] border-white/10 border-t-[#C084FC] rounded-full animate-spin" />
-            <div className="text-[13px] text-white/30 tracking-widest uppercase">Loading</div>
+            <div className="text-[13px] text-[var(--muted)] tracking-widest uppercase">Loading</div>
           </div>
         ) : globalError ? (
           <div className="flex-1 flex flex-col items-center justify-center py-20 px-4 text-center">
             <div className="text-[14px] text-[#F97060] mb-2 font-medium">Failed to load data</div>
-            <div className="text-[12px] text-white/40 max-w-md bg-white/[0.02] p-4 rounded-lg break-all font-mono">
+            <div className="text-[12px] text-[var(--muted)] max-w-md bg-white/[0.02] p-4 rounded-lg break-all font-mono">
               {globalError}
             </div>
           </div>
         ) : clients.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center py-20 px-4 text-center">
-            <Users className="w-8 h-8 text-white/15 mb-3" />
-            <div className="text-[14px] text-white/30 mb-1">No clients yet</div>
-            <div className="text-[12px] text-white/20">Link a client to get started</div>
+            <Users className="w-8 h-8 text-[var(--foreground)]/15 mb-3" />
+            <div className="text-[14px] text-[var(--muted)] mb-1">No clients yet</div>
+            <div className="text-[12px] text-[var(--muted)]">Link a client to get started</div>
           </div>
         ) : (
           <div className="flex-1 overflow-auto">
             {/* Desktop Table Header */}
-            <div className="hidden md:grid grid-cols-[2fr_1.2fr_1fr_1fr_1fr_80px] gap-4 px-6 pt-5 pb-2 border-b border-white/[0.06] text-[10px] tracking-[0.1em] text-white/30 uppercase sticky top-0 bg-[#1f1c19]/95 backdrop-blur z-10">
+            <div className="hidden md:grid grid-cols-[2fr_1.2fr_1fr_1fr_1fr_80px] gap-4 px-6 pt-5 pb-2 border-b border-white/[0.06] text-[10px] tracking-[0.1em] text-[var(--muted)] uppercase sticky top-0 bg-[#1f1c19]/95 backdrop-blur z-10">
               <div>CLIENT</div>
               <div>LAST CHECK-IN</div>
               <div>MOOD (7d)</div>
@@ -207,7 +207,7 @@ export default function ClientsPage() {
             {/* Rows */}
             <div className="flex flex-col">
               {filteredClients.length === 0 ? (
-                <div className="py-12 text-center text-[13px] text-white/30">
+                <div className="py-12 text-center text-[13px] text-[var(--muted)]">
                   No clients match your search.
                 </div>
               ) : (
@@ -242,10 +242,10 @@ export default function ClientsPage() {
                           {c.client_name?.[0]?.toUpperCase() || c.client_email[0].toUpperCase()}
                         </div>
                         <div className="flex flex-col min-w-0 flex-1 md:flex-none">
-                          <div className="text-[14px] text-white/80 truncate">
+                          <div className="text-[14px] text-[var(--foreground)] truncate">
                             {c.client_name || "Unnamed"}
                           </div>
-                          <div className="text-[11px] text-white/30 truncate">
+                          <div className="text-[11px] text-[var(--muted)] truncate">
                             {c.client_email}
                           </div>
                         </div>
@@ -260,19 +260,19 @@ export default function ClientsPage() {
                       </div>
 
                       {/* Desktop + Mobile stacked data */}
-                      <div className="flex w-full md:contents gap-2 text-[13px] text-white/50 justify-between">
+                      <div className="flex w-full md:contents gap-2 text-[13px] text-[var(--muted)] justify-between">
                         
                         {/* Last Check-in */}
                         <div className="flex items-center md:block">
-                          <span className="md:hidden text-[10px] uppercase tracking-wider text-white/20 mr-2">Last:</span>
-                          <span className={!s?.last_checkin ? "text-white/20" : ""}>
+                          <span className="md:hidden text-[10px] uppercase tracking-wider text-[var(--muted)] mr-2">Last:</span>
+                          <span className={!s?.last_checkin ? "text-[var(--muted)]" : ""}>
                             {relativeTime(s?.last_checkin)}
                           </span>
                         </div>
 
                         {/* Mood 7d */}
                         <div className="flex items-center md:block">
-                          <span className="md:hidden text-[10px] uppercase tracking-wider text-white/20 mr-2">Mood:</span>
+                          <span className="md:hidden text-[10px] uppercase tracking-wider text-[var(--muted)] mr-2">Mood:</span>
                           <div className="flex items-center gap-[3px] h-full">
                             {last7.map((pt, i) => (
                               <div
@@ -291,23 +291,23 @@ export default function ClientsPage() {
 
                         {/* Streak */}
                         <div className="flex items-center md:block">
-                          <span className="md:hidden text-[10px] uppercase tracking-wider text-white/20 mr-2">Streak:</span>
+                          <span className="md:hidden text-[10px] uppercase tracking-wider text-[var(--muted)] mr-2">Streak:</span>
                           {(s?.low_mood_streak || 0) > 0 ? (
                             <span className="text-[#C084FC]">
                               {s!.low_mood_streak} {s!.low_mood_streak > 3 ? "🔥" : ""}
                             </span>
                           ) : (
-                            <span className="text-white/20">—</span>
+                            <span className="text-[var(--muted)]">—</span>
                           )}
                         </div>
 
                         {/* Alert */}
                         <div className="flex items-center md:block">
-                          <span className="md:hidden text-[10px] uppercase tracking-wider text-white/20 mr-2">Alert:</span>
+                          <span className="md:hidden text-[10px] uppercase tracking-wider text-[var(--muted)] mr-2">Alert:</span>
                           {s?.has_unread_alert ? (
                             <div className="w-2 h-2 rounded-full bg-[#F97060]" />
                           ) : (
-                            <span className="md:hidden text-white/20">—</span>
+                            <span className="md:hidden text-[var(--muted)]">—</span>
                           )}
                         </div>
                       </div>
@@ -334,13 +334,13 @@ export default function ClientsPage() {
       {/* LINK CLIENT MODAL */}
       {linkOpen && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-[#1f1c19] border border-white/[0.08] rounded-[16px] p-8 max-w-[400px] w-full shadow-2xl relative">
-            <button onClick={() => setLinkOpen(false)} className="absolute top-4 right-4 p-2 text-white/30 hover:text-white/70 transition-colors rounded-full hover:bg-white/5">
+          <div className="bg-[#1f1c19] border border-[var(--card-border)] rounded-[16px] p-8 max-w-[400px] w-full shadow-2xl relative">
+            <button onClick={() => setLinkOpen(false)} className="absolute top-4 right-4 p-2 text-[var(--muted)] hover:text-[var(--foreground)] transition-colors rounded-full hover:bg-[var(--surface-2)]">
               <X className="w-5 h-5" />
             </button>
             
-            <h2 className="text-[18px] font-semibold text-white/90 mb-2">Link a Client</h2>
-            <p className="text-[13px] text-white/50 mb-6">
+            <h2 className="text-[18px] font-semibold text-[var(--foreground)] mb-2">Link a Client</h2>
+            <p className="text-[13px] text-[var(--muted)] mb-6">
               Enter the email address of a registered client to link them to your practice.
             </p>
             
@@ -351,7 +351,7 @@ export default function ClientsPage() {
                 onChange={(e) => setLinkEmail(e.target.value)}
                 placeholder="client@example.com"
                 required
-                className="w-full bg-white/[0.05] border border-white/[0.1] focus:border-white/[0.25] rounded-[10px] p-3 text-[13px] text-white/80 outline-none transition-colors mb-4 placeholder:text-white/20"
+                className="w-full bg-[var(--surface-2)] border border-[var(--card-border)] focus:border-[var(--card-border)] rounded-[10px] p-3 text-[13px] text-[var(--foreground)] outline-none transition-colors mb-4 placeholder:text-[var(--muted)]"
               />
               
               {linkError && (

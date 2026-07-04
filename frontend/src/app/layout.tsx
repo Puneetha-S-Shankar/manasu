@@ -1,9 +1,15 @@
 import type { Metadata, Viewport } from "next";
+import { Fraunces, Nunito_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+
+const fraunces = Fraunces({ subsets: ["latin"], weight: ["400","500","600"], display: "swap", variable: "--font-fraunces" });
+const nunitoSans = Nunito_Sans({ subsets: ["latin"], weight: ["400","500","600","700"], display: "swap", variable: "--font-nunito-sans" });
+const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], display: "swap", variable: "--font-jetbrains-mono" });
 
 export const metadata: Metadata = {
   title: "Manasu",
-  description: "Explore and understand your emotions",
+  description: "Understand your emotional landscape",
+  manifest: "/manifest.json"
 };
 
 export const viewport: Viewport = {
@@ -21,14 +27,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" style={{ width: "100%", height: "100%" }} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${fraunces.variable} ${nunitoSans.variable} ${jetbrainsMono.variable}`}>
       <body
-        className="antialiased bg-white text-black dark:bg-black dark:text-white"
-        style={{ width: "100%", minHeight: "100%", margin: 0, padding: 0 }}
+        className="antialiased bg-[var(--background)] text-[var(--foreground)]"
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
-            <div className="fixed top-4 right-4 z-50">
+            <div className="fixed top-4 left-4 z-50">
               <ThemeToggle />
             </div>
             {children}

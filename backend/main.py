@@ -8,6 +8,7 @@ from config import settings
 from routers import quotes, sessions
 from routers.therapist import router as therapist_router
 from routers.admin import router as admin_router
+from routers.client import router as client_router
 from tasks.scheduler import start_scheduler
 
 logging.basicConfig(
@@ -50,6 +51,7 @@ app.include_router(sessions.router)
 app.include_router(quotes.router)
 app.include_router(therapist_router)
 app.include_router(admin_router)
+app.include_router(client_router)
 
 
 @app.on_event("startup")
