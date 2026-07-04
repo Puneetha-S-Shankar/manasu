@@ -12,7 +12,12 @@ export async function GET(req: NextRequest) {
   const code = searchParams.get("code");
   const error = searchParams.get("error");
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  let appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (!appUrl) {
+    const forwardedHost = req.headers.get("x-forwarded-host");
+    const proto = req.headers.get("x-forwarded-proto") || "https";
+    appUrl = forwardedHost ? `${proto}://${forwardedHost}` : req.nextUrl.origin;
+  }
 
   if (error || !code) {
     console.error("Google OAuth error or missing code:", error);
